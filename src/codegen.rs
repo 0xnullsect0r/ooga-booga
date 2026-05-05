@@ -40,6 +40,12 @@ pub struct Codegen {
     type_env: HashMap<String, TypeAnnotation>,
 }
 
+impl Default for Codegen {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl Codegen {
     pub fn new() -> Self {
         Codegen {
@@ -101,13 +107,30 @@ impl Codegen {
                     self.collect_types(s);
                 }
             }
-            Statement::If { then_block, else_ifs, else_block, .. } => {
-                for s in then_block { self.collect_types(s); }
-                for (_, block) in else_ifs { for s in block { self.collect_types(s); } }
-                if let Some(block) = else_block { for s in block { self.collect_types(s); } }
+            Statement::If {
+                then_block,
+                else_ifs,
+                else_block,
+                ..
+            } => {
+                for s in then_block {
+                    self.collect_types(s);
+                }
+                for (_, block) in else_ifs {
+                    for s in block {
+                        self.collect_types(s);
+                    }
+                }
+                if let Some(block) = else_block {
+                    for s in block {
+                        self.collect_types(s);
+                    }
+                }
             }
             Statement::While { body, .. } | Statement::Loop { body, .. } => {
-                for s in body { self.collect_types(s); }
+                for s in body {
+                    self.collect_types(s);
+                }
             }
             _ => {}
         }
@@ -117,7 +140,12 @@ impl Codegen {
 
     fn emit_statement(&mut self, stmt: &Statement) {
         match stmt {
-            Statement::VarDecl { name, type_ann, initializer, .. } => {
+            Statement::VarDecl {
+                name,
+                type_ann,
+                initializer,
+                ..
+            } => {
                 self.push_indent();
                 self.output.push_str("let mut ");
                 self.output.push_str(name);
@@ -158,24 +186,34 @@ impl Codegen {
                 self.output.push_str("{\n");
                 self.indent += 1;
                 self.push_indent();
-                self.output.push_str("let mut __ooga_input = String::new();\n");
+                self.output
+                    .push_str("let mut __ooga_input = String::new();\n");
                 self.push_indent();
                 self.output.push_str("std::io::stdin().read_line(&mut __ooga_input).expect(\"UGH! CAVE EAR BROKEN\");\n");
                 self.push_indent();
                 self.output.push_str(name);
-                self.output.push_str(" = __ooga_input.trim().to_string();\n");
+                self.output
+                    .push_str(" = __ooga_input.trim().to_string();\n");
                 self.indent -= 1;
                 self.push_indent();
                 self.output.push_str("}\n");
             }
 
-            Statement::If { condition, then_block, else_ifs, else_block, .. } => {
+            Statement::If {
+                condition,
+                then_block,
+                else_ifs,
+                else_block,
+                ..
+            } => {
                 self.push_indent();
                 self.output.push_str("if ");
                 self.emit_expr(condition);
                 self.output.push_str(" {\n");
                 self.indent += 1;
-                for s in then_block { self.emit_statement(s); }
+                for s in then_block {
+                    self.emit_statement(s);
+                }
                 self.indent -= 1;
                 self.push_indent();
                 self.output.push('}');
@@ -185,7 +223,9 @@ impl Codegen {
                     self.emit_expr(cond);
                     self.output.push_str(" {\n");
                     self.indent += 1;
-                    for s in block { self.emit_statement(s); }
+                    for s in block {
+                        self.emit_statement(s);
+                    }
                     self.indent -= 1;
                     self.push_indent();
                     self.output.push('}');
@@ -194,7 +234,9 @@ impl Codegen {
                 if let Some(block) = else_block {
                     self.output.push_str(" else {\n");
                     self.indent += 1;
-                    for s in block { self.emit_statement(s); }
+                    for s in block {
+                        self.emit_statement(s);
+                    }
                     self.indent -= 1;
                     self.push_indent();
                     self.output.push('}');
@@ -202,13 +244,17 @@ impl Codegen {
                 self.output.push('\n');
             }
 
-            Statement::While { condition, body, .. } => {
+            Statement::While {
+                condition, body, ..
+            } => {
                 self.push_indent();
                 self.output.push_str("while ");
                 self.emit_expr(condition);
                 self.output.push_str(" {\n");
                 self.indent += 1;
-                for s in body { self.emit_statement(s); }
+                for s in body {
+                    self.emit_statement(s);
+                }
                 self.indent -= 1;
                 self.push_indent();
                 self.output.push_str("}\n");
@@ -218,7 +264,9 @@ impl Codegen {
                 self.push_indent();
                 self.output.push_str("loop {\n");
                 self.indent += 1;
-                for s in body { self.emit_statement(s); }
+                for s in body {
+                    self.emit_statement(s);
+                }
                 self.indent -= 1;
                 self.push_indent();
                 self.output.push_str("}\n");
@@ -234,13 +282,21 @@ impl Codegen {
                 self.output.push_str("continue;\n");
             }
 
-            Statement::FuncDef { name, params, return_type, body, .. } => {
+            Statement::FuncDef {
+                name,
+                params,
+                return_type,
+                body,
+                ..
+            } => {
                 self.push_indent();
                 self.output.push_str("fn ");
                 self.output.push_str(name);
                 self.output.push('(');
                 for (i, (pname, ptype)) in params.iter().enumerate() {
-                    if i > 0 { self.output.push_str(", "); }
+                    if i > 0 {
+                        self.output.push_str(", ");
+                    }
                     self.output.push_str(pname);
                     self.output.push_str(": ");
                     self.output.push_str(ptype.to_rust());
@@ -255,7 +311,9 @@ impl Codegen {
                 for (pname, ptype) in params {
                     self.type_env.insert(pname.clone(), ptype.clone());
                 }
-                for s in body { self.emit_statement(s); }
+                for s in body {
+                    self.emit_statement(s);
+                }
                 self.indent -= 1;
                 self.push_indent();
                 self.output.push_str("}\n");
@@ -286,7 +344,11 @@ impl Codegen {
     /// and the source is a string literal (so `let x: String = "hi".to_string();`).
     fn emit_expr_for_type(&mut self, expr: &Expr, ty: &TypeAnnotation) {
         if ty.is_words() {
-            if let Expr::Literal { value: Literal::Str(_), .. } = expr {
+            if let Expr::Literal {
+                value: Literal::Str(_),
+                ..
+            } = expr
+            {
                 self.emit_expr(expr);
                 self.output.push_str(".to_string()");
                 return;
@@ -310,7 +372,7 @@ impl Codegen {
                     self.output.push('"');
                     for ch in s.chars() {
                         match ch {
-                            '"'  => self.output.push_str("\\\""),
+                            '"' => self.output.push_str("\\\""),
                             '\\' => self.output.push_str("\\\\"),
                             '\n' => self.output.push_str("\\n"),
                             '\t' => self.output.push_str("\\t"),
@@ -326,7 +388,9 @@ impl Codegen {
                 self.output.push_str(name);
             }
 
-            Expr::BinOp { op, left, right, .. } => {
+            Expr::BinOp {
+                op, left, right, ..
+            } => {
                 if *op == BinOp::Plus && self.expr_is_words(left, right) {
                     self.output.push_str("__ooga_concat(");
                     self.emit_expr(left);
@@ -358,7 +422,9 @@ impl Codegen {
                 self.output.push_str(name);
                 self.output.push('(');
                 for (i, arg) in args.iter().enumerate() {
-                    if i > 0 { self.output.push_str(", "); }
+                    if i > 0 {
+                        self.output.push_str(", ");
+                    }
                     self.emit_expr(arg);
                 }
                 self.output.push(')');
@@ -373,10 +439,20 @@ impl Codegen {
 
     fn single_is_words(&self, expr: &Expr) -> bool {
         match expr {
-            Expr::Literal { value: Literal::Str(_), .. } => true,
-            Expr::Ident { name, .. } => matches!(self.type_env.get(name), Some(TypeAnnotation::Words)),
+            Expr::Literal {
+                value: Literal::Str(_),
+                ..
+            } => true,
+            Expr::Ident { name, .. } => {
+                matches!(self.type_env.get(name), Some(TypeAnnotation::Words))
+            }
             Expr::FuncCall { name, .. } if name == "__ooga_concat" || name == "WORDY" => true,
-            Expr::BinOp { op: BinOp::Plus, left, right, .. } => self.expr_is_words(left, right),
+            Expr::BinOp {
+                op: BinOp::Plus,
+                left,
+                right,
+                ..
+            } => self.expr_is_words(left, right),
             _ => false,
         }
     }
@@ -390,19 +466,19 @@ impl Codegen {
 
 fn binop_to_rust(op: &BinOp) -> &'static str {
     match op {
-        BinOp::Plus    => "+",
-        BinOp::Minus   => "-",
-        BinOp::Times   => "*",
-        BinOp::Divvy   => "/",
-        BinOp::Mod     => "%",
-        BinOp::Is      => "==",
-        BinOp::Isnt    => "!=",
-        BinOp::Biggr   => ">",
-        BinOp::Smallr  => "<",
+        BinOp::Plus => "+",
+        BinOp::Minus => "-",
+        BinOp::Times => "*",
+        BinOp::Divvy => "/",
+        BinOp::Mod => "%",
+        BinOp::Is => "==",
+        BinOp::Isnt => "!=",
+        BinOp::Biggr => ">",
+        BinOp::Smallr => "<",
         BinOp::BiggrIs => ">=",
         BinOp::SmallrIs => "<=",
-        BinOp::And     => "&&",
-        BinOp::Or      => "||",
+        BinOp::And => "&&",
+        BinOp::Or => "||",
     }
 }
 
@@ -452,9 +528,7 @@ mod tests {
 
     #[test]
     fn test_func_def_emitted_before_main() {
-        let rs = compile(
-            "MAGIC double(n: ROCK) -> ROCK\nGIVEBACK n TIMES 2\nUGHA\nSAY double(4)",
-        );
+        let rs = compile("MAGIC double(n: ROCK) -> ROCK\nGIVEBACK n TIMES 2\nUGHA\nSAY double(4)");
         let func_pos = rs.find("fn double").expect("no fn double");
         let main_pos = rs.find("fn main").expect("no fn main");
         assert!(func_pos < main_pos, "function should be before main");
@@ -480,8 +554,13 @@ mod tests {
 
     #[test]
     fn test_loop_break_emitted() {
-        let rs = compile("OOGA i: ROCK BE 0\nUGGA DO\ni GETS i PLUS 1\nIFF i IS 3\nSTOP\nUGHA\nUGHA");
-        assert!(rs.contains("loop {") && rs.contains("break;"), "got: {}", rs);
+        let rs =
+            compile("OOGA i: ROCK BE 0\nUGGA DO\ni GETS i PLUS 1\nIFF i IS 3\nSTOP\nUGHA\nUGHA");
+        assert!(
+            rs.contains("loop {") && rs.contains("break;"),
+            "got: {}",
+            rs
+        );
     }
 
     #[test]

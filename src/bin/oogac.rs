@@ -75,7 +75,10 @@ fn main() {
                 .arg(&tmp_bin)
                 .status()
                 .unwrap_or_else(|e| {
-                    eprintln!("UGH! CAVE NEED RUSTC. INSTALL AT https://rustup.rs\nERROR: {}", e);
+                    eprintln!(
+                        "UGH! CAVE NEED RUSTC. INSTALL AT https://rustup.rs\nERROR: {}",
+                        e
+                    );
                     process::exit(1);
                 });
             if !status.success() {

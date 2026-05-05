@@ -132,9 +132,7 @@ impl Parser {
     fn parse_var_decl(&mut self) -> OogaResult<Statement> {
         let span = self.peek_span();
         self.advance(); // OOGA
-        let name = self.expect_ident(
-            "OOGA NEEDS NAME AFTER IT. LIKE: OOGA x: ROCK BE 42",
-        )?;
+        let name = self.expect_ident("OOGA NEEDS NAME AFTER IT. LIKE: OOGA x: ROCK BE 42")?;
         // Expect : Type annotation (required)
         self.expect(&Token::Colon)?;
         let type_ann = self.parse_type_annotation()?;
@@ -249,9 +247,8 @@ impl Parser {
     fn parse_func_def(&mut self) -> OogaResult<Statement> {
         let span = self.peek_span();
         self.advance(); // MAGIC
-        let name = self.expect_ident(
-            "MAGIC NEEDS FUNCTION NAME. LIKE: MAGIC fib(n: ROCK) -> ROCK",
-        )?;
+        let name =
+            self.expect_ident("MAGIC NEEDS FUNCTION NAME. LIKE: MAGIC fib(n: ROCK) -> ROCK")?;
         self.expect(&Token::LParen)?;
         let params = self.parse_typed_param_list()?;
         self.expect(&Token::RParen)?;

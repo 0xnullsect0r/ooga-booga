@@ -42,13 +42,18 @@ jobs:
       - name: Run tests
         run: cargo test --verbose
 
-      - name: Build release binary
+      - name: Build release binaries
         run: cargo build --release
 
-      - name: Smoke-test examples
+      - name: Smoke-test examples via oogac
         run: |
-          node --version
           ./target/release/oogac run examples/hello_world.ooga
           ./target/release/oogac run examples/factorial.ooga
           ./target/release/oogac run examples/fibonacci.ooga
           ./target/release/oogac run examples/loop_demo.ooga
+
+      - name: Smoke-test ooga new + ooga run
+        run: |
+          ./target/release/ooga new smoke-test-project
+          cd smoke-test-project
+          ../target/release/ooga run

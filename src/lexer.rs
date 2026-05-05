@@ -68,8 +68,8 @@ pub enum Token {
     LParen,
     RParen,
     Comma,
-    Colon,   // :
-    Arrow,   // ->
+    Colon, // :
+    Arrow, // ->
     Newline,
 
     // ── Sentinel ──────────────────────────────────────────────────────────
@@ -197,10 +197,7 @@ impl<'src> Lexer<'src> {
                 last_was_newline = false;
                 continue;
             }
-            if ch == b'-'
-                && self.pos + 1 < self.src.len()
-                && self.src[self.pos + 1] == b'>'
-            {
+            if ch == b'-' && self.pos + 1 < self.src.len() && self.src[self.pos + 1] == b'>' {
                 tokens.push(Spanned::new(Token::Arrow, self.line, self.col));
                 self.advance();
                 self.advance();

@@ -86,11 +86,8 @@ SAY "Ooga Booga! Cave greet world!"
         .expect("UGH! CAVE NO WRITE main.ooga");
 
     // .gitignore
-    std::fs::write(
-        dir.join(".gitignore"),
-        "/target\n/.ooga-gen\n",
-    )
-    .expect("UGH! CAVE NO WRITE .gitignore");
+    std::fs::write(dir.join(".gitignore"), "/target\n/.ooga-gen\n")
+        .expect("UGH! CAVE NO WRITE .gitignore");
 
     println!("CAVE MADE NEW PROJECT: {}", name);
     println!("  {} ooga run", name);
@@ -119,7 +116,10 @@ fn cmd_run(release: bool, args: &[String]) {
     copy_binary(&project_dir, &manifest.name, release);
 
     let profile = if release { "release" } else { "debug" };
-    let binary = project_dir.join("target").join(profile).join(&manifest.name);
+    let binary = project_dir
+        .join("target")
+        .join(profile)
+        .join(&manifest.name);
     let status = process::Command::new(&binary)
         .args(args)
         .status()

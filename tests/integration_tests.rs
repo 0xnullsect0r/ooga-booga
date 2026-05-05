@@ -49,7 +49,11 @@ fn compile_expect_error(src: &str) {
         .status()
         .expect("oogac binary not found");
     let _ = std::fs::remove_file(&src_path);
-    assert!(!status.success(), "expected oogac to fail but it succeeded for: {}", src);
+    assert!(
+        !status.success(),
+        "expected oogac to fail but it succeeded for: {}",
+        src
+    );
 }
 
 /// Compile .ooga → Rust, then compile Rust with rustc, then run and capture stdout.
@@ -305,7 +309,11 @@ fn e2e_example_hello_world() {
     let src = std::fs::read_to_string("examples/hello_world.ooga")
         .expect("examples/hello_world.ooga missing");
     let output = run_rs(&src);
-    assert!(output.contains("Ooga Booga") || !output.is_empty(), "output: {}", output);
+    assert!(
+        output.contains("Ooga Booga") || !output.is_empty(),
+        "output: {}",
+        output
+    );
 }
 
 #[test]

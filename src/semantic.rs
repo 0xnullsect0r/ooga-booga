@@ -306,8 +306,7 @@ mod tests {
 
     #[test]
     fn test_func_params_in_scope() {
-        let errors =
-            analyse_src("MAGIC double(n: ROCK) -> ROCK\nGIVEBACK n TIMES 2\nUGHA");
+        let errors = analyse_src("MAGIC double(n: ROCK) -> ROCK\nGIVEBACK n TIMES 2\nUGHA");
         assert!(errors.is_empty(), "params should be in scope: {:?}", errors);
     }
 
@@ -319,8 +318,7 @@ mod tests {
 
     #[test]
     fn test_builtin_functions_allowed() {
-        let errors =
-            analyse_src("OOGA x: BIGDRIP BE 3.7\nOOGA n: BIGDRIP BE FLOORY(x)");
+        let errors = analyse_src("OOGA x: BIGDRIP BE 3.7\nOOGA n: BIGDRIP BE FLOORY(x)");
         assert!(
             errors.is_empty(),
             "builtins should be allowed: {:?}",

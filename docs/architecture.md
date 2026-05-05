@@ -1,10 +1,21 @@
 # Compiler Architecture
 
-This page describes the internal design of `oogac`, the Ooga Booga compiler, for contributors and curious readers.
+This page describes the internal design of the Ooga Booga toolchain for contributors and curious readers.
 
 ---
 
-## Pipeline overview
+## Overview
+
+Ooga Booga source files (`.ooga`) are **transpiled to Rust**, then compiled to a native binary by `cargo`. There are two user-facing binaries:
+
+- **`oogac`** — the low-level transpiler CLI (`oogac compile`, `oogac run`, `oogac check`)
+- **`ooga`** — the high-level build tool that mirrors `cargo` (`ooga new`, `ooga build`, `ooga run`, `ooga check`, `ooga clean`, `ooga test`)
+
+Both binaries share the same compiler library (`src/lib.rs`).
+
+---
+
+## Pipeline
 
 ```
 Source file (.ooga)
@@ -22,34 +33,44 @@ Source file (.ooga)
   └─────────────┘
         │  Program (AST)
         ▼
-  ┌─────────────────┐
-  │ Semantic Analyser│  src/semantic.rs
-  │   analyse()      │
-  └─────────────────┘
+  ┌──────────────────┐
+  │ Semantic Analyser │   src/semantic.rs
+  │    analyse()      │
+  └──────────────────┘
         │  Program (validated)
         ▼
   ┌─────────────┐
   │  Code Gen    │   src/codegen.rs
   │  generate()  │
   └─────────────┘
-        │  String (JavaScript)
+        │  String (Rust source)
         ▼
-  Output file (.js)
+  .ooga-gen/src/main.rs
+        │
+        ▼
+  cargo build / rustc
+        │
+        ▼
+  Native binary
 ```
-
-The CLI (`src/main.rs`) wires these stages together and handles file I/O.
 
 ---
 
 ## Module breakdown
 
+### `src/lib.rs`
+
+Re-exports all compiler modules as `pub mod`. Both binary crates (`oogac` and `ooga`) use this library.
+
+---
+
 ### `src/error.rs`
 
-Defines the `OogaError` enum and the `Span` struct (line + column).
+Defines `OogaError` and `Span`.
 
-- **`Span`**: Source location, included with every token and most AST nodes.
-- **`OogaError`**: Four variants — `IoError`, `LexError`, `ParseError`, `SemanticError`. Each variant's `Display` implementation produces a caveman-flavored message.
-- **`OogaResult<T>`**: Type alias for `Result<T, OogaError>`.
+- **`Span`**: source location (line + column).
+- **`OogaError`**: four variants — `IoError`, `LexError`, `ParseError`, `SemanticError`. Each variant's `Display` implementation produces a caveman-flavored message.
+- **`OogaResult<T>`**: type alias for `Result<T, OogaError>`.
 
 ---
 
@@ -59,113 +80,136 @@ Pure data structures — no logic.
 
 - **`Program`**: top-level container, holds `Vec<Statement>`.
 - **`Statement`**: enum with variants for every statement kind (`VarDecl`, `Assign`, `Say`, `Hear`, `If`, `While`, `Loop`, `Break`, `Continue`, `FuncDef`, `Return`, `ExprStmt`).
-- **`Expr`**: enum with variants for every expression kind (`Literal`, `Ident`, `BinOp`, `UnaryOp`, `FuncCall`).
-- **`Literal`**, **`BinOp`**, **`UnaryOp`**: leaf enums.
-
-All nodes carry a `Span` for error reporting.
+- **`Expr`**: expression enum (`Literal`, `Ident`, `BinOp`, `UnaryOp`, `FuncCall`).
+- **`TypeAnnotation`**: enum of all 18 Ooga Booga types (`ROCK`, `BIGROCK`, `WORDS`, etc.) with methods `to_rust()`, `default_value()`, `is_words()`.
+- All nodes carry a `Span` for accurate error reporting.
 
 ---
 
 ### `src/lexer.rs`
 
-Converts raw source text into a flat list of tokens.
+Converts raw source text into a flat list of `Spanned<Token>` values.
 
-- **`Token`**: enum of all syntactic tokens (keywords, literals, punctuation, `Eof`).
-- **`Spanned`**: pairs a `Token` with its `Span`.
-- **`Lexer`**: byte-by-byte scanner. Key behaviours:
-  - Multiple consecutive newlines are collapsed into a single `Token::Newline`.
-  - `OOF` (when followed by a non-identifier character) skips the rest of the line.
-  - String literals handle `\n`, `\t`, `\"`, `\\` escape sequences.
-  - Two-character compound operators (`BIGGR IS`, `SMALLR IS`) are recognised at the **parser** level, not the lexer.
+- Recognises all keywords, type keywords, identifiers, integer/float/string/char/boolean literals, operators, and punctuation.
+- Emits `Token::Newline` as a statement separator (blank lines are collapsed).
+- Type tokens: `TEENYROCK`, `SMALLROCK`, `ROCK`, `BIGROCK`, … `WORDS`, `NOTHING`.
+- New tokens vs. v1: `Token::Colon` (`:`), `Token::Arrow` (`->`).
 
 ---
 
 ### `src/parser.rs`
 
-Recursive descent parser. Consumes `Vec<Spanned>` and produces `Program`.
+Recursive-descent parser. Produces an AST `Program` from a token stream.
 
-**Statement parsing**: `parse_statement()` dispatches on the first token of the current line to one of the dedicated statement parsers.
+Key parsing rules:
 
-**Expression parsing**: uses standard precedence climbing via mutually-recursive functions:
-
-```
-parse_expr → parse_or → parse_and → parse_not
-          → parse_comparison → parse_additive
-          → parse_multiplicative → parse_unary
-          → parse_primary
-```
-
-`BIGGR IS` / `SMALLR IS` are handled in `parse_comparison()` by peeking one token ahead after seeing `BIGGR` or `SMALLR`.
-
-**Block parsing**: `parse_block()` reads statements until it sees `UGHA`, `NOPE`, or `Eof` — it does **not** consume the terminator.
+- `OOGA name: Type` / `OOGA name: Type BE expr`
+- `MAGIC name(p1: Type, p2: Type) -> ReturnType`
+- `IFF expr` … `NOPE IFF expr` … `NOPE` … `UGHA`
+- `UGGA WHILE expr` … `UGHA`
+- `UGGA DO` … `UGHA`
+- Operator precedence: OR → AND → NOT → comparisons → PLUS/MINUS → TIMES/DIVVY/MOD → unary MINUS → primary
 
 ---
 
 ### `src/semantic.rs`
 
-Single-pass semantic analyser that collects all errors before returning.
+Single-pass semantic analysis. Checks:
 
-- Uses a **`Context`** struct containing:
-  - `declared`: set of declared variable names in the current scope.
-  - `in_function`: tracks whether we are inside a `MAGIC` body.
-  - `in_loop`: tracks whether we are inside a `UGGA` body.
-  - `functions`: set of known function names (populated in a first pass over the program).
+- Every identifier referenced must be declared (`OOGA`) or be a parameter.
+- Every assignment target must be declared.
+- `GIVEBACK` must appear inside a `MAGIC` body.
+- `STOP` / `SKIP` must appear inside a loop body.
+- Function calls must reference a declared or built-in function.
+- Duplicate parameter names in `MAGIC` definitions.
 
-- **First pass**: scans for all top-level `FuncDef` statements and adds their names to `ctx.functions`, enabling mutual recursion and forward calls.
-- **Second pass**: walks every statement and expression recursively, accumulating `OogaError::SemanticError` entries.
-
-Built-in function names (`NUMBR`, `WORDY`, etc.) are always considered declared.
+Errors are collected and returned as a `Vec<OogaError>` so all problems are reported at once.
 
 ---
 
 ### `src/codegen.rs`
 
-Traverses the validated AST and produces a JavaScript string.
+Emits valid Rust source from a validated AST.
 
-- Emits a **preamble** containing `"use strict"`, built-in function definitions, and the `_hear()` helper.
-- **Function hoisting**: iterates statements twice — first emitting `FuncDef` nodes, then all other statements.
-- **Indentation**: maintains an `indent: usize` counter; `indent()` outputs `2 * indent` spaces.
-- **Expression emission**: wraps every `BinOp` in parentheses to guarantee correct precedence in the output regardless of JavaScript's own rules.
+Key behaviours:
+
+- Injects a preamble with `#![allow(...)]` and helper functions (`WORDY`, `NUMBR`, `NUMBR_BIG`, `NUMBR_DRIP`, `BIGNESS`, `FLOORY`, `ROUNDY`, `ROOTY`, `__ooga_concat`).
+- Emits `fn name(p: Type) -> ReturnType { ... }` for each `MAGIC` definition.
+- Wraps all non-function top-level statements in `fn main() { ... }`.
+- `SAY expr` → `println!("{}", expr);`
+- `HEAR name` → `std::io::stdin().read_line(...)` block.
+- `OOGA x: Type BE expr` → `let mut x: RustType = expr;`
+- `PLUS` on `WORDS` values → `__ooga_concat(a, b)` to avoid Rust's asymmetric string `+`.
+- Tracks a `type_env: HashMap<String, TypeAnnotation>` to detect string context for PLUS.
 
 ---
 
-### `src/main.rs`
+### `src/bin/oogac.rs`
 
-CLI entry point built with [clap](https://crates.io/crates/clap).
+The low-level transpiler CLI. Subcommands:
 
-Three subcommands:
+| Command               | Action                                          |
+|-----------------------|-------------------------------------------------|
+| `oogac compile <file>` | Transpile `.ooga` → `.rs` file                 |
+| `oogac run <file>`     | Transpile → `rustc` → run binary (temp files)  |
+| `oogac check <file>`   | Lex + parse + semantic check, no output         |
 
-| Subcommand | Action |
-|------------|--------|
-| `compile`  | Lex → Parse → Analyse → Codegen → write `.js` file |
-| `run`      | Same as `compile`, then execute with `node` |
-| `check`    | Lex → Parse → Analyse only, no output |
+---
+
+### `src/bin/ooga.rs`
+
+The high-level build tool. Mirrors `cargo` subcommands:
+
+| Command              | Action                                                      |
+|----------------------|-------------------------------------------------------------|
+| `ooga new <name>`    | Scaffold project dir with `Ooga.toml` + `src/main.ooga`    |
+| `ooga build`         | Transpile → `.ooga-gen/` → `cargo build`                   |
+| `ooga build --release` | Release build                                             |
+| `ooga run`           | Build + execute                                             |
+| `ooga check`         | Transpile + semantic check (no binary)                      |
+| `ooga clean`         | Remove `.ooga-gen/` and `target/`                           |
+| `ooga test`          | Transpile + `cargo test`                                    |
+
+The `ooga` tool walks up the directory tree to find `Ooga.toml`, writes generated Rust to `.ooga-gen/src/main.rs`, invokes `cargo build`, and copies the binary to `target/debug/` or `target/release/`.
+
+---
+
+## Project layout
+
+```
+ooga-booga/
+├── Cargo.toml              # lib + two [[bin]] entries
+├── src/
+│   ├── lib.rs              # re-exports all modules
+│   ├── error.rs
+│   ├── lexer.rs
+│   ├── ast.rs
+│   ├── parser.rs
+│   ├── semantic.rs
+│   ├── codegen.rs
+│   └── bin/
+│       ├── oogac.rs        # transpiler CLI
+│       └── ooga.rs         # build tool CLI
+├── tests/
+│   └── integration_tests.rs
+├── examples/
+│   ├── hello_world.ooga
+│   ├── fibonacci.ooga
+│   ├── factorial.ooga
+│   └── loop_demo.ooga
+├── install-ooga.sh
+├── mkdocs.yml
+└── docs/
+```
 
 ---
 
 ## Adding a new language feature
 
-To add a new statement or expression type:
-
-1. **`ast.rs`**: Add a new variant to `Statement` or `Expr`.
-2. **`lexer.rs`**: Add any new keywords to `Token` and `keyword_or_ident()`.
-3. **`parser.rs`**: Add a parsing function and dispatch from `parse_statement()` or `parse_primary()`.
-4. **`semantic.rs`**: Add checks in `check_statement()` or `check_expr()`.
-5. **`codegen.rs`**: Add code emission in `emit_statement()` or `emit_expr()`.
-6. **Tests**: Add unit tests in each module's `#[cfg(test)]` block.
-7. **Docs**: Update the relevant language reference page(s).
-
----
-
-## Running the test suite
-
-```bash
-cargo test
-```
-
-Tests are co-located with each module in `#[cfg(test)]` blocks. The test suite covers:
-
-- **Lexer**: keyword recognition, string escapes, numeric literals, comments.
-- **Parser**: all statement forms, expression precedence, compound operators.
-- **Semantic**: undefined variables, out-of-context `GIVEBACK`/`STOP`/`SKIP`, built-ins.
-- **Codegen**: generated JS contains expected patterns, function hoisting, correct operator output.
+1. Add token(s) to `Token` enum in `src/lexer.rs` and update `keyword_or_ident()`.
+2. Add AST node(s) to `Statement` or `Expr` in `src/ast.rs`.
+3. Add parsing logic in `src/parser.rs`.
+4. Add semantic checks in `src/semantic.rs`.
+5. Add Rust code emission in `src/codegen.rs`.
+6. Add unit tests in each module and integration tests in `tests/`.
+7. Update the relevant documentation pages.

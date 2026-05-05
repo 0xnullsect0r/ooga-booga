@@ -1,6 +1,6 @@
 # Installation
 
-This page covers everything you need to build `oogac` — the Ooga Booga compiler — and run `.ooga` programs.
+This page covers everything you need to install the Ooga Booga toolchain and run `.ooga` programs.
 
 ---
 
@@ -8,7 +8,9 @@ This page covers everything you need to build `oogac` — the Ooga Booga compile
 
 ### Rust toolchain
 
-Ooga Booga's compiler is written in Rust. Install the latest stable Rust via [rustup](https://rustup.rs/):
+Ooga Booga compiles `.ooga` programs to Rust, then uses `cargo` / `rustc` to produce a native binary. You need the Rust toolchain installed.
+
+Install via [rustup](https://rustup.rs/):
 
 ```bash
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
@@ -17,33 +19,45 @@ curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 After installation, verify:
 
 ```bash
-rustc --version   # should print 1.70 or later
+rustc --version   # 1.70 or later
 cargo --version
 ```
 
-### Node.js
+That is the only prerequisite. No Node.js, no npm, no extra runtimes.
 
-The compiler transpiles `.ooga` files to JavaScript. You need [Node.js](https://nodejs.org/) to *run* the generated output.
+---
+
+## Option 1 — Install script (recommended)
+
+Clone the repository and run the install script:
 
 ```bash
-node --version   # should print v18 or later
+git clone https://github.com/0xnullsect0r/ooga-booga.git
+cd ooga-booga
+./install-ooga.sh
 ```
 
-Node.js is **not** required to compile — only to execute the output.
-
-### Optional: readline-sync (for HEAR)
-
-If your program uses `HEAR` (reading from stdin), the generated JavaScript requires the `readline-sync` package:
+This builds `ooga` and `oogac` in release mode and installs them to `/usr/local/bin/`. If you don't have write access there, use the `--user` flag:
 
 ```bash
-npm install readline-sync
+./install-ooga.sh --user      # installs to ~/.local/bin/
+```
+
+Or specify a custom prefix:
+
+```bash
+./install-ooga.sh --prefix /opt/cave-tools
+```
+
+After a `--user` install, add `~/.local/bin` to your PATH if it isn't already:
+
+```bash
+export PATH="$HOME/.local/bin:$PATH"   # add to ~/.bashrc or ~/.zshrc
 ```
 
 ---
 
-## Building the compiler
-
-Clone the repository and compile with Cargo:
+## Option 2 — Manual build
 
 ```bash
 git clone https://github.com/0xnullsect0r/ooga-booga.git
@@ -51,67 +65,68 @@ cd ooga-booga
 cargo build --release
 ```
 
-The compiled binary will be at:
+The binaries are at:
 
 ```
-target/release/oogac
+target/release/ooga     # build tool (like cargo)
+target/release/oogac    # low-level transpiler
 ```
 
-Add it to your `PATH` for convenient use:
+Add them to your PATH:
 
 ```bash
-# Linux / macOS
 export PATH="$PWD/target/release:$PATH"
-
-# Or copy to a system directory
-sudo cp target/release/oogac /usr/local/bin/
 ```
 
 ---
 
 ## Verifying the installation
 
-Check that the compiler works:
-
 ```bash
-oogac --help
+ooga --help
 ```
 
 Expected output:
 
 ```
-UGH! OOGAC — THE OOGA BOOGA CAVE COMPILER
+UGH! OOGA — CAVE BUILD TOOL FOR OOGA BOOGA PROGRAMS
 
-Usage: oogac <COMMAND>
+Usage: ooga <COMMAND>
 
 Commands:
-  compile  Transpile a .ooga source file to JavaScript
-  run      Transpile and immediately run a .ooga file with node
-  check    Check a .ooga file for errors without emitting output
-  help     Print this message or the help of the given subcommand(s)
+  new    Create a new Ooga Booga project
+  build  Build the project (transpile + compile)
+  run    Build and run the project
+  check  Check the project for errors without building
+  clean  Remove build artifacts
+  test   Run tests
+  help   Print this message or the help of the given subcommand(s)
 ```
 
-Run one of the included examples:
+---
+
+## Quick smoke test
 
 ```bash
-oogac run examples/hello_world.ooga
+ooga new hello-cave
+cd hello-cave
+ooga run
 ```
 
 Expected output:
 
 ```
-Hello, World! UGH!
-Me am:
-Thog
-Greetings from cave creature: Thog
+Ooga Booga! Cave greet world!
 ```
 
 ---
 
 ## Running tests
 
+From the repository root:
+
 ```bash
 cargo test
 ```
 
-All 41 unit and integration tests should pass.
+All unit and integration tests should pass. Integration tests compile and run example programs with `rustc`.
