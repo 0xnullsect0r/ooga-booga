@@ -1,0 +1,44 @@
+OOF Loop Demo — counting and summing with UGGA WHILE
+
+OOF Count from 1 to 10
+OOGA i BE 1
+UGGA WHILE i SMALLR IS 10
+    SAY i
+    i GETS i PLUS 1
+UGHA
+
+SAY "---"
+
+OOF Sum numbers 1 through 100 (Gauss would approve)
+OOGA total BE 0
+OOGA n BE 1
+UGGA WHILE n SMALLR IS 100
+    total GETS total PLUS n
+    n GETS n PLUS 1
+UGHA
+
+SAY "Sum 1..100:"
+SAY total
+
+SAY "---"
+
+OOF Find first power of 2 greater than 1000
+OOGA power BE 1
+UGGA WHILE power SMALLR IS 1000
+    power GETS power TIMES 2
+UGHA
+SAY "First power of 2 bigger than 1000:"
+SAY power
+
+SAY "---"
+
+OOF Infinite loop with STOP (break when condition met)
+OOGA x BE 0
+UGGA DO
+    x GETS x PLUS 3
+    IFF x BIGGR 20
+        STOP
+    UGHA
+UGHA
+SAY "Stopped at:"
+SAY x

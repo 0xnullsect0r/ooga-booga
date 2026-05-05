@@ -1,0 +1,16 @@
+OOF Factorial — recursive function demo
+OOF Shows: MAGIC, GIVEBACK, recursion (Turing completeness!)
+
+MAGIC factorial(n)
+    IFF n SMALLR IS 1
+        GIVEBACK 1
+    UGHA
+    GIVEBACK n TIMES factorial(n MINUS 1)
+UGHA
+
+OOF Print factorials from 0 to 12
+OOGA i BE 0
+UGGA WHILE i SMALLR IS 12
+    SAY WORDY(i) PLUS "! = " PLUS WORDY(factorial(i))
+    i GETS i PLUS 1
+UGHA

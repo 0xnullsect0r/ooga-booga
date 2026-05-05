@@ -1,12 +1,14 @@
 use crate::error::Span;
 
 /// The root of the AST: an ordered list of top-level statements.
+#[allow(dead_code)]
 #[derive(Debug, Clone)]
 pub struct Program {
     pub statements: Vec<Statement>,
 }
 
 /// Every kind of statement the language supports.
+#[allow(dead_code)]
 #[derive(Debug, Clone)]
 pub enum Statement {
     /// OOGA name  /  OOGA name BE expr
@@ -77,6 +79,7 @@ pub enum Statement {
     },
 }
 
+#[allow(dead_code)]
 impl Statement {
     pub fn span(&self) -> &Span {
         match self {
@@ -97,6 +100,7 @@ impl Statement {
 }
 
 /// Every kind of expression the language supports.
+#[allow(dead_code)]
 #[derive(Debug, Clone)]
 pub enum Expr {
     Literal {
@@ -125,6 +129,7 @@ pub enum Expr {
     },
 }
 
+#[allow(dead_code)]
 impl Expr {
     pub fn span(&self) -> &Span {
         match self {

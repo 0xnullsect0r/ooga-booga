@@ -21,6 +21,7 @@ impl std::fmt::Display for Span {
 #[derive(Error, Debug, Clone)]
 pub enum OogaError {
     #[error("UGH! CAVE BRAIN NO READ FILE: {0}")]
+    #[allow(dead_code)]
     IoError(String),
 
     #[error("UGH! ME NO UNDERSTAND '{token}' at {span}. {hint}")]

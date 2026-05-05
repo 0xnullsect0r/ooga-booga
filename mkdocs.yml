@@ -1,0 +1,84 @@
+site_name: Ooga Booga Language
+site_description: "The caveman esoteric programming language — grunts into JavaScript"
+site_url: https://0xnullsect0r.github.io/ooga-booga/
+repo_url: https://github.com/0xnullsect0r/ooga-booga
+repo_name: 0xnullsect0r/ooga-booga
+copyright: "© 2024 Ooga Booga Contributors — GPL-3.0"
+
+theme:
+  name: material
+  palette:
+    - scheme: default
+      primary: brown
+      accent: deep-orange
+      toggle:
+        icon: material/weather-night
+        name: Switch to dark mode
+    - scheme: slate
+      primary: brown
+      accent: deep-orange
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to light mode
+  font:
+    text: Source Sans 3
+    code: JetBrains Mono
+  features:
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.sections
+    - navigation.expand
+    - navigation.path
+    - toc.integrate
+    - search.suggest
+    - search.highlight
+    - content.code.annotate
+    - content.code.copy
+  icon:
+    repo: fontawesome/brands/github
+    logo: material/fire
+
+extra_css:
+  - stylesheets/extra.css
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.tabbed:
+      alternate_style: true
+  - tables
+  - attr_list
+  - md_in_html
+  - toc:
+      permalink: true
+
+nav:
+  - Home: index.md
+  - Getting Started:
+      - Installation: getting-started/installation.md
+      - Quick Start: getting-started/quick-start.md
+  - Language Reference:
+      - Overview: language/overview.md
+      - Data Types: language/data-types.md
+      - Variables & Assignment: language/variables.md
+      - Operators: language/operators.md
+      - Conditionals: language/conditionals.md
+      - Loops: language/loops.md
+      - Functions: language/functions.md
+      - Input & Output: language/io.md
+      - Comments: language/comments.md
+      - Built-ins: language/builtins.md
+      - Error Messages: language/errors.md
+  - Examples: examples.md
+  - Turing Completeness: turing-completeness.md
+  - Compiler Architecture: architecture.md
+  - Contributing: contributing.md
+  - FAQ: faq.md
+  - Roadmap: roadmap.md

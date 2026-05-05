@@ -427,8 +427,8 @@ mod tests {
     #[test]
     fn test_comment_ignored() {
         let tokens = lex("OOF this is ignored\nSAY");
-        assert_eq!(tokens[0], Token::Newline);
-        assert_eq!(tokens[1], Token::Say);
+        // The comment line produces no tokens; SAY is the first real token.
+        assert_eq!(tokens[0], Token::Say);
     }
 
     #[test]

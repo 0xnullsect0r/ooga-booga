@@ -1,0 +1,13 @@
+OOF Hello World in Ooga Booga!
+OOF Cave creature greet the world with big voice.
+
+OOGA greeting BE "Hello, World! UGH!"
+SAY greeting
+
+OOGA name BE "Thog"
+SAY "Me am:"
+SAY name
+
+OOF Strings can be joined using PLUS
+OOGA msg BE "Greetings from cave creature: "
+SAY msg PLUS name
