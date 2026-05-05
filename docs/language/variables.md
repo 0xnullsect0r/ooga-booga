@@ -1,20 +1,37 @@
 # Variables & Assignment
 
-Variables are the primary way to store and manipulate data in Ooga Booga.
+Variables are the primary way to store and manipulate data in Ooga Booga. All variables require a **type annotation** — the language is strongly typed.
 
 ---
 
 ## Declaring a variable
 
-Use `OOGA` to declare a new variable. Declaration creates the variable in the current scope.
+Use `OOGA` to declare a new variable. The type annotation (`: Type`) is **required**.
 
 ```ooga
-OOGA name           OOF declares 'name', initial value is VOID
-OOGA age BE 30      OOF declares 'age' with initial value 30
-OOGA msg BE "hi"    OOF declares 'msg' as a string
+OOGA age: ROCK                    OOF declare, no initial value (defaults to 0)
+OOGA name: WORDS BE "Thog"        OOF declare with initial value
+OOGA score: BIGDRIP BE 9.5        OOF float
+OOGA done: GRUNT BE NAH           OOF boolean
 ```
 
-A variable must be declared with `OOGA` before it can be used or assigned to.
+**Syntax:**
+
+```
+OOGA <name>: <Type>
+OOGA <name>: <Type> BE <expr>
+```
+
+A variable declared without `BE` receives the **default value** for its type:
+
+| Type              | Default value |
+|-------------------|---------------|
+| Integer types     | `0`           |
+| Float types       | `0.0`         |
+| `GRUNT` (bool)    | `NAH` (false) |
+| `SCRATCH` (char)  | `'\0'`        |
+| `WORDS` (String)  | `""` (empty)  |
+| `NOTHING`         | `()`          |
 
 ---
 
@@ -23,28 +40,28 @@ A variable must be declared with `OOGA` before it can be used or assigned to.
 Use `GETS` to assign a new value to a previously declared variable:
 
 ```ooga
-OOGA x BE 10
-x GETS 20        OOF x is now 20
-x GETS x PLUS 5  OOF x is now 25
+OOGA x: ROCK BE 10
+x GETS 20          OOF x is now 20
+x GETS x PLUS 5    OOF x is now 25
 ```
 
-The right-hand side of `GETS` can be any expression.
+The right-hand side of `GETS` can be any expression whose type matches the variable's declared type.
 
 ---
 
 ## Scope rules
 
 - **Function scope**: variables declared inside a `MAGIC` block are local to that function.
-- **Top-level scope**: variables declared outside any function are global.
-- Variables declared inside `IFF` or `UGGA` blocks are visible for the remainder of the enclosing function/program (Ooga Booga uses function-level scoping like JavaScript `var`).
+- **Top-level scope**: variables declared outside any function are in the main function scope.
+- Variables declared inside `IFF` or `UGGA` blocks are visible within the enclosing scope (Ooga Booga uses Rust-style block scoping in the generated output).
 
 ```ooga
-MAGIC example()
-    OOGA local BE 99
-    SAY local   OOF ok — local is in scope
+MAGIC example() -> NOTHING
+    OOGA local: ROCK BE 99
+    SAY local          OOF ok — in scope
 UGHA
 
-OOF SAY local   OOF would be an error — local not declared here
+OOF SAY local          OOF would be an error — local not declared here
 ```
 
 ---
@@ -54,32 +71,40 @@ OOF SAY local   OOF would be an error — local not declared here
 **Swap two variables:**
 
 ```ooga
-OOGA a BE 1
-OOGA b BE 2
-OOGA temp BE a
+OOGA a: ROCK BE 1
+OOGA b: ROCK BE 2
+OOGA temp: ROCK BE a
 a GETS b
 b GETS temp
-SAY a   OOF 2
-SAY b   OOF 1
+SAY a              OOF 2
+SAY b              OOF 1
 ```
 
 **Accumulator:**
 
 ```ooga
-OOGA total BE 0
-OOGA i BE 1
+OOGA total: ROCK BE 0
+OOGA i: ROCK BE 1
 UGGA WHILE i SMALLR IS 100
     total GETS total PLUS i
     i GETS i PLUS 1
 UGHA
-SAY total   OOF 5050
+SAY total          OOF 5050
+```
+
+**String building:**
+
+```ooga
+OOGA msg: WORDS BE "Cave says: "
+OOGA name: WORDS BE "Thog"
+SAY msg PLUS name  OOF "Cave says: Thog"
 ```
 
 ---
 
 ## Errors
 
-If you try to use a variable before declaring it, `oogac` reports a semantic error:
+If you use a variable before declaring it, `oogac` reports a semantic error:
 
 ```
 OW! CAVE THINKER CONFUSED at line 3, col 5:

@@ -13,7 +13,6 @@ SAY "Hello, cave!"
 SAY 42
 SAY 3.14
 SAY YEAH
-SAY VOID
 ```
 
 Output:
@@ -23,71 +22,69 @@ Hello, cave!
 42
 3.14
 true
-null
 ```
 
 `SAY` accepts any expression, including function calls and arithmetic:
 
 ```ooga
-OOGA x BE 7
-SAY x TIMES x         OOF 49
+OOGA x: ROCK BE 7
+SAY x TIMES x                            OOF 49
 SAY "x squared: " PLUS WORDY(x TIMES x)
 ```
+
+The compiler emits `println!("{}", expr);` for every `SAY`.
 
 ---
 
 ## HEAR — read input
 
-`HEAR` reads one line of text from standard input and stores it as a string in the named variable. The variable must be declared with `OOGA` before `HEAR` can assign to it.
+`HEAR` reads one line from standard input and stores it in a `WORDS` variable. The variable must be declared with `OOGA` before `HEAR` can assign to it.
 
 ```ooga
-OOGA name BE VOID
+OOGA name: WORDS
 SAY "What is your name?"
 HEAR name
 SAY "Hello, " PLUS name PLUS "!"
 ```
 
-!!! note "Input is always a string"
-    `HEAR` always returns a string. To treat the input as a number, convert it with `NUMBR()`:
+!!! note "HEAR always produces WORDS"
+    `HEAR` always stores a `WORDS` (String) value. To treat input as a number, convert it with a built-in:
 
     ```ooga
-    OOGA raw BE VOID
+    OOGA raw: WORDS
     HEAR raw
-    OOGA n BE NUMBR(raw)
+    OOGA n: ROCK BE NUMBR(raw)
     SAY n TIMES 2
     ```
 
----
+**Generated Rust for `HEAR name`:**
 
-## readline-sync requirement
-
-`HEAR` relies on the [`readline-sync`](https://www.npmjs.com/package/readline-sync) Node.js package for synchronous stdin reading. Install it before running programs that use `HEAR`:
-
-```bash
-npm install readline-sync
+```rust
+{
+    let mut __ooga_input = String::new();
+    std::io::stdin().read_line(&mut __ooga_input).expect("UGH! CAVE EAR BROKEN");
+    name = __ooga_input.trim().to_string();
+}
 ```
 
-If `readline-sync` is not installed, the generated JavaScript will throw an error at runtime when `HEAR` is reached:
-
-```
-UGH! CAVE NEEDS readline-sync TO HEAR. RUN: npm install readline-sync
-```
+No external dependencies are needed — `HEAR` uses Rust's standard library.
 
 ---
 
 ## Full interactive example
 
 ```ooga
-OOF Simple number guessing game
+OOF Number guessing game
 
-OOGA secret BE 7
-OOGA guess BE VOID
-OOGA won BE NAH
+OOGA secret: ROCK BE 7
+OOGA guess: ROCK BE 0
+OOGA raw: WORDS
+OOGA won: GRUNT BE NAH
 
 UGGA WHILE NOT won
     SAY "Guess a number between 1 and 10:"
-    HEAR guess
-    guess GETS NUMBR(guess)
+    HEAR raw
+    guess GETS NUMBR(raw)
     IFF guess IS secret
         SAY "YES! CAVE BRAIN CORRECT! UGH UGH!"
         won GETS YEAH

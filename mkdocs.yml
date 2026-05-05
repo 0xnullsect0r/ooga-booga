@@ -1,5 +1,5 @@
 site_name: Ooga Booga Language
-site_description: "The caveman esoteric programming language — grunts into JavaScript"
+site_description: "The caveman esoteric programming language — grunts into Rust"
 site_url: https://0xnullsect0r.github.io/ooga-booga/
 repo_url: https://github.com/0xnullsect0r/ooga-booga
 repo_name: 0xnullsect0r/ooga-booga
@@ -8,18 +8,18 @@ copyright: "© 2024 Ooga Booga Contributors — GPL-3.0"
 theme:
   name: material
   palette:
-    - scheme: default
-      primary: brown
-      accent: deep-orange
-      toggle:
-        icon: material/weather-night
-        name: Switch to dark mode
     - scheme: slate
       primary: brown
       accent: deep-orange
       toggle:
         icon: material/weather-sunny
         name: Switch to light mode
+    - scheme: default
+      primary: brown
+      accent: deep-orange
+      toggle:
+        icon: material/weather-night
+        name: Switch to dark mode
   font:
     text: Source Sans 3
     code: JetBrains Mono

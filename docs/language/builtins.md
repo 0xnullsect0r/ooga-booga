@@ -1,44 +1,66 @@
 # Built-in Functions
 
-Ooga Booga provides a small set of built-in functions for common operations. These are always available without any declaration.
+Ooga Booga provides a small set of built-in functions for common operations. These are always available without any import or declaration — the compiler injects them as Rust helper functions into every generated file.
 
 ---
 
 ## Type conversion
 
-### `NUMBR(x)`
+### `WORDY(x)` → `WORDS`
 
-Converts `x` to a number. Equivalent to `Number(x)` in JavaScript.
-
-```ooga
-OOGA s BE "42"
-OOGA n BE NUMBR(s)
-SAY n PLUS 1    OOF 43
-```
-
-Useful after `HEAR`, which always returns a string.
-
----
-
-### `WORDY(x)`
-
-Converts `x` to a string. Equivalent to `String(x)`.
+Converts any value to a `WORDS` (String). Uses Rust's `Display` trait.
 
 ```ooga
-OOGA n BE 100
+OOGA n: ROCK BE 100
 SAY "The answer is: " PLUS WORDY(n)
 ```
 
 ---
 
-## String / array
+### `NUMBR(x)` → `ROCK`
 
-### `BIGNESS(x)`
-
-Returns the length of a string (or array, if you construct one via JavaScript interop). Equivalent to `x.length`.
+Parses a `WORDS` value as a `ROCK` (i32). Panics with a caveman message if the input is not a valid integer.
 
 ```ooga
-OOGA word BE "mammoth"
+OOGA s: WORDS BE "42"
+OOGA n: ROCK BE NUMBR(s)
+SAY n PLUS 1    OOF 43
+```
+
+Useful after `HEAR`, which always produces `WORDS`.
+
+---
+
+### `NUMBR_BIG(x)` → `BIGROCK`
+
+Parses a `WORDS` value as a `BIGROCK` (i64). Use for large integers that overflow `ROCK`.
+
+```ooga
+OOGA big: BIGROCK BE NUMBR_BIG("9999999999")
+SAY big
+```
+
+---
+
+### `NUMBR_DRIP(x)` → `BIGDRIP`
+
+Parses a `WORDS` value as a `BIGDRIP` (f64).
+
+```ooga
+OOGA pi: BIGDRIP BE NUMBR_DRIP("3.14159")
+SAY pi
+```
+
+---
+
+## String
+
+### `BIGNESS(x)` → `BIGROCK`
+
+Returns the byte length of a `WORDS` string as a `BIGROCK` (i64).
+
+```ooga
+OOGA word: WORDS BE "mammoth"
 SAY BIGNESS(word)   OOF 7
 ```
 
@@ -46,9 +68,9 @@ SAY BIGNESS(word)   OOF 7
 
 ## Math
 
-### `FLOORY(x)`
+### `FLOORY(x)` → `BIGDRIP`
 
-Returns the floor of `x` (largest integer ≤ x). Equivalent to `Math.floor(x)`.
+Returns the floor of a `BIGDRIP` — the largest integer not greater than `x`.
 
 ```ooga
 SAY FLOORY(3.9)    OOF 3
@@ -57,9 +79,9 @@ SAY FLOORY(-1.2)   OOF -2
 
 ---
 
-### `ROUNDY(x)`
+### `ROUNDY(x)` → `BIGDRIP`
 
-Returns `x` rounded to the nearest integer. Equivalent to `Math.round(x)`.
+Returns `x` rounded to the nearest integer (as `BIGDRIP`).
 
 ```ooga
 SAY ROUNDY(3.5)   OOF 4
@@ -68,36 +90,38 @@ SAY ROUNDY(3.4)   OOF 3
 
 ---
 
-### `ROOTY(x)`
+### `ROOTY(x)` → `BIGDRIP`
 
-Returns the square root of `x`. Equivalent to `Math.sqrt(x)`.
+Returns the square root of a `BIGDRIP`.
 
 ```ooga
-SAY ROOTY(144)   OOF 12
-SAY ROOTY(2)     OOF 1.4142135623730951
+SAY ROOTY(144.0)   OOF 12
+SAY ROOTY(2.0)     OOF 1.4142135623730951
 ```
 
 ---
 
 ## Summary table
 
-| Function      | JS equivalent      | Description                        |
-|---------------|--------------------|------------------------------------|
-| `NUMBR(x)`    | `Number(x)`        | Convert to number                  |
-| `WORDY(x)`    | `String(x)`        | Convert to string                  |
-| `BIGNESS(x)`  | `x.length`         | Length of string (or array)        |
-| `FLOORY(x)`   | `Math.floor(x)`    | Floor of a float                   |
-| `ROUNDY(x)`   | `Math.round(x)`    | Round to nearest integer           |
-| `ROOTY(x)`    | `Math.sqrt(x)`     | Square root                        |
+| Function         | Input type | Output type | Description                    |
+|------------------|------------|-------------|--------------------------------|
+| `WORDY(x)`       | any        | `WORDS`     | Convert to string              |
+| `NUMBR(x)`       | `WORDS`    | `ROCK`      | Parse as i32                   |
+| `NUMBR_BIG(x)`   | `WORDS`    | `BIGROCK`   | Parse as i64                   |
+| `NUMBR_DRIP(x)`  | `WORDS`    | `BIGDRIP`   | Parse as f64                   |
+| `BIGNESS(x)`     | `WORDS`    | `BIGROCK`   | String byte length             |
+| `FLOORY(x)`      | `BIGDRIP`  | `BIGDRIP`   | Floor                          |
+| `ROUNDY(x)`      | `BIGDRIP`  | `BIGDRIP`   | Round to nearest               |
+| `ROOTY(x)`       | `BIGDRIP`  | `BIGDRIP`   | Square root                    |
 
 ---
 
-## Calling built-ins in expressions
+## Using built-ins in expressions
 
-Built-ins are functions and can be used anywhere a function call expression is valid:
+Built-ins are functions and can appear anywhere a function call is valid:
 
 ```ooga
-OOGA r BE 5
-OOGA area BE ROUNDY(3.14159 TIMES r TIMES r)
+OOGA r: BIGDRIP BE 5.0
+OOGA area: BIGDRIP BE ROUNDY(3.14159 TIMES r TIMES r)
 SAY "Circle area ≈ " PLUS WORDY(area)
 ```
