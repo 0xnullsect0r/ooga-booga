@@ -8,13 +8,13 @@ Ooga Booga supports arithmetic, comparison, and logical operators — all writte
 
 Binary operators are written **infix**: `left OP right`.
 
-| Operator | Meaning        | Example                   | JS equivalent |
-|----------|----------------|---------------------------|---------------|
-| `PLUS`   | Addition       | `3 PLUS 4` → `7`          | `+`           |
-| `MINUS`  | Subtraction    | `10 MINUS 3` → `7`        | `-`           |
-| `TIMES`  | Multiplication | `6 TIMES 7` → `42`        | `*`           |
-| `DIVVY`  | Division       | `10 DIVVY 4` → `2.5`      | `/`           |
-| `MOD`    | Modulo         | `10 MOD 3` → `1`          | `%`           |
+| Operator | Meaning        | Example                   | Rust equivalent |
+|----------|----------------|---------------------------|-----------------|
+| `PLUS`   | Addition       | `3 PLUS 4` → `7`          | `+`             |
+| `MINUS`  | Subtraction    | `10 MINUS 3` → `7`        | `-`             |
+| `TIMES`  | Multiplication | `6 TIMES 7` → `42`        | `*`             |
+| `DIVVY`  | Division       | `10 DIVVY 4` → `2`        | `/`             |
+| `MOD`    | Modulo         | `10 MOD 3` → `1`          | `%`             |
 
 `MINUS` can also be used **prefix** for negation:
 
@@ -29,14 +29,14 @@ OOGA y BE MINUS x   OOF y = 5
 
 Comparisons return a boolean (`YEAH` or `NAH`).
 
-| Operator       | Meaning              | JS equivalent |
-|----------------|----------------------|---------------|
-| `IS`           | Equal                | `===`         |
-| `ISNT`         | Not equal            | `!==`         |
-| `BIGGR`        | Greater than         | `>`           |
-| `SMALLR`       | Less than            | `<`           |
-| `BIGGR IS`     | Greater than or equal| `>=`          |
-| `SMALLR IS`    | Less than or equal   | `<=`          |
+| Operator       | Meaning              | Rust equivalent |
+|----------------|----------------------|-----------------|
+| `IS`           | Equal                | `==`            |
+| `ISNT`         | Not equal            | `!=`            |
+| `BIGGR`        | Greater than         | `>`             |
+| `SMALLR`       | Less than            | `<`             |
+| `BIGGR IS`     | Greater than or equal| `>=`            |
+| `SMALLR IS`    | Less than or equal   | `<=`            |
 
 !!! note "Two-word operators"
     `BIGGR IS` and `SMALLR IS` are each treated as a single operator — the parser looks ahead for the second token.
@@ -54,11 +54,11 @@ SAY a ISNT b          OOF true
 
 ## Logical operators
 
-| Operator | Meaning     | JS equivalent |
-|----------|-------------|---------------|
-| `AND`    | Logical AND | `&&`          |
-| `OR`     | Logical OR  | `\|\|`        |
-| `NOT`    | Logical NOT | `!`           |
+| Operator | Meaning     | Rust equivalent |
+|----------|-------------|-----------------|
+| `AND`    | Logical AND | `&&`            |
+| `OR`     | Logical OR  | `\|\|`          |
+| `NOT`    | Logical NOT | `!`             |
 
 ```ooga
 OOGA x BE 5
@@ -107,4 +107,4 @@ SAY s   OOF "cave creature"
 ```
 
 !!! warning
-    Mixing a number and a string with `PLUS` follows JavaScript's coercion rules: `1 PLUS "2"` produces `"12"`. Use `NUMBR()` or `WORDY()` to convert explicitly.
+    `PLUS` on `WORDS` (String) variables calls `__ooga_concat()` in generated Rust — it always produces a `String`. Mixing a numeric type with `WORDS` will produce a type error. Use `WORDY()` to convert a number to a string first before concatenating.

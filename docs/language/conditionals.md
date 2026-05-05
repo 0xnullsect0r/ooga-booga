@@ -53,17 +53,16 @@ Any number of `NOPE IFF` branches may be chained before the final `NOPE`.
 
 ## Truthy and falsy
 
-Like JavaScript, the condition is evaluated for truthiness:
+Ooga Booga is strongly typed — conditions must be `GRUNT` (bool) expressions. Use comparison operators to produce boolean values:
 
-| Value        | Truthy? |
-|--------------|---------|
-| Non-zero int | Yes     |
-| `YEAH`       | Yes     |
-| Non-empty string | Yes |
-| `0`          | No      |
-| `NAH`        | No      |
-| `VOID`       | No      |
-| `""`         | No      |
+| Expression         | Result |
+|--------------------|--------|
+| `x BIGGR 0`        | `YEAH` if x > 0, else `NAH` |
+| `x IS 0`           | `YEAH` if x equals 0        |
+| `YEAH`             | Always `YEAH`               |
+| `NAH`              | Always `NAH`                |
+
+Non-boolean expressions used directly as conditions will produce a type error.
 
 ---
 

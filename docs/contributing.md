@@ -40,7 +40,7 @@ src/
   lexer.rs      Tokeniser
   parser.rs     Recursive descent parser
   semantic.rs   Semantic analyser
-  codegen.rs    JavaScript code generator
+  codegen.rs    Rust code generator
 examples/       .ooga example programs
 docs/           MkDocs documentation site
 tests/          (integration test stubs)

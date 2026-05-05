@@ -1,6 +1,6 @@
 # Language Overview
 
-Ooga Booga is a dynamically typed, imperative esoteric programming language with a caveman theme. Programs are written in `.ooga` files and transpiled to JavaScript by `oogac`.
+Ooga Booga is a **strongly typed**, imperative esoteric programming language with a caveman theme. Programs are written in `.ooga` files and transpiled to Rust by `oogac`, which then compiles them to native binaries.
 
 ---
 
@@ -8,7 +8,7 @@ Ooga Booga is a dynamically typed, imperative esoteric programming language with
 
 - **One statement per line.** Each statement occupies exactly one line (no semicolons, no braces).
 - **Blocks are delimited by `UGHA`.** All block-ending constructs (`IFF`, `UGGA`, `MAGIC`) close with `UGHA` on its own line.
-- **Dynamically typed.** Variables hold any value — numbers, strings, booleans, or `VOID`.
+- **Strongly typed.** Every variable and parameter carries an explicit type annotation using caveman-named Rust types (`ROCK`=i32, `WORDS`=String, `GRUNT`=bool, etc.).
 - **Caveman keywords.** Every reserved word sounds like it came from a prehistoric cave.
 
 ---
@@ -20,21 +20,21 @@ A program is a sequence of statements, one per line. Blank lines are ignored. Co
 ```ooga
 OOF This is a comment — ignored by the compiler
 
-OOGA x BE 42          OOF declare a variable
-SAY x                 OOF print it
+OOGA x ROCK BE 42          OOF declare a ROCK (i32) variable
+SAY x                      OOF print it
 ```
 
-Functions may be defined anywhere in the file; `oogac` hoists them in the generated JavaScript so they are callable from anywhere in the same file.
+Functions may be defined anywhere in the file; `oogac` emits all function definitions before `fn main()` in the generated Rust, so they are callable from anywhere in the same file.
 
 ---
 
 ## Execution model
 
-`oogac` compiles `.ooga` → `.js` in a single pass. The generated JavaScript file is self-contained and runnable with `node`. The output includes:
+`oogac` compiles `.ooga` → `.rs` in a single pass. The generated Rust file is then compiled with `rustc` (or `cargo` when using the `ooga` build tool) to produce a native binary. The generated Rust includes:
 
-1. A preamble with built-in function shims and the `_hear()` helper for stdin.
-2. All function definitions (hoisted to the top).
-3. Top-level statements in source order.
+1. A preamble with runtime helper functions (`__ooga_concat`, etc.).
+2. All function definitions (emitted before `fn main()`).
+3. A `fn main()` containing top-level statements in source order.
 
 ---
 
@@ -72,7 +72,8 @@ Functions may be defined anywhere in the file; `oogac` hoists them in the genera
 | `NOT`      | Logical NOT                      |
 | `YEAH`     | Boolean `true`                   |
 | `NAH`      | Boolean `false`                  |
-| `VOID`     | Null / nothing                   |
+| `NOTHING`  | Unit / nothing (return type)     |
+| Type names | `ROCK`, `WORDS`, `GRUNT`, etc.   |
 
 Identifiers may use letters, digits, and underscores, but must not start with a digit and must not clash with a reserved word.
 
@@ -83,7 +84,7 @@ Identifiers may use letters, digits, and underscores, but must not start with a 
 ```ooga
 OOF FizzBuzz — cave edition
 
-OOGA i BE 1
+OOGA i ROCK BE 1
 UGGA WHILE i SMALLR IS 30
     IFF i MOD 15 IS 0
         SAY "FizzBuzz"

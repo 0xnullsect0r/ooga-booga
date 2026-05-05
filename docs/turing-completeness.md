@@ -6,7 +6,7 @@ Ooga Booga is Turing complete. This page explains what that means, why it matter
 
 ## What is Turing completeness?
 
-A computational system is **Turing complete** if it can simulate any Turing machine — informally, if it can compute anything that is computable given enough time and memory. Every general-purpose programming language you have used (Python, C, JavaScript, etc.) is Turing complete.
+A computational system is **Turing complete** if it can simulate any Turing machine — informally, if it can compute anything that is computable given enough time and memory. Every general-purpose programming language you have used (Python, C, Rust, etc.) is Turing complete.
 
 The minimum ingredients for Turing completeness are:
 
@@ -27,7 +27,7 @@ OOGA x BE 0
 x GETS x PLUS 1   OOF mutable state
 ```
 
-There is no limit on the number of variables a program may declare, and they can hold arbitrarily large integer values (bounded only by the host JavaScript engine, which uses arbitrary-precision arithmetic for very large BigInts — or standard 64-bit floats for practical use).
+There is no limit on the number of variables a program may declare, and numeric types can hold values up to the bounds of their Rust-equivalent type (e.g., `ROCK`=i32 up to ~2.1 billion; `BIGROCK`=i64 up to ~9.2 × 10¹⁸; `HUGEROCK`=i128 for astronomical values).
 
 ### 2. Conditional branching
 
@@ -59,7 +59,7 @@ UGHA
 
 **b) Recursion via `MAGIC`**
 
-Functions may call themselves (or call other functions that call back). There is no depth limit imposed by the language (only the practical stack limit of the Node.js runtime):
+Functions may call themselves (or call other functions that call back). There is no depth limit imposed by the language (only the practical stack limit of the compiled Rust binary, which is typically 8 MB per thread):
 
 ```ooga
 MAGIC recurse(n)
@@ -84,9 +84,9 @@ A Turing machine consists of:
 
 We can simulate this in Ooga Booga:
 
-- Represent the tape as a sufficiently large array (via JavaScript interop) or as a pair of integer stacks encoded as large numbers.
-- Represent the state as an integer variable.
-- Represent the head position as an integer variable.
+- Represent the tape as a pair of integer variables encoding stacks (or as a large `BIGROCK` with bit-shifting).
+- Represent the state as a `ROCK` variable.
+- Represent the head position as a `ROCK` variable.
 - Use a `UGGA WHILE` loop for the machine's step function.
 - Use nested `IFF` / `NOPE IFF` chains to implement the transition table.
 
@@ -110,8 +110,8 @@ These programs would not terminate for all inputs if there were an inherent boun
 
 Turing completeness is a theoretical property. Practical limits include:
 
-- **Stack depth**: deep recursion is limited by Node.js's call stack (~10,000–15,000 frames by default).
+- **Stack depth**: deep recursion is limited by the OS thread stack size (~8 MB by default in Rust-compiled binaries, giving thousands of frames).
 - **Memory**: variables are held in RAM.
-- **Integer precision**: JavaScript numbers are IEEE-754 doubles; very large integers lose precision unless `BigInt` is used explicitly.
+- **Integer range**: each type has a fixed range (e.g., `ROCK`=i32, `BIGROCK`=i64). For very large values, use `HUGEROCK` (i128) or `BIGPEBBLE` (u64).
 
 None of these are language-level restrictions; they are implementation-level constraints shared by all practical computing systems.

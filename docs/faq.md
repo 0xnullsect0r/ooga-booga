@@ -18,14 +18,14 @@ Yes. Ooga Booga has unbounded while loops (`UGGA WHILE`), recursion (`MAGIC`), m
 
 ---
 
-**Q: Why does it transpile to JavaScript instead of having its own runtime?**
+**Q: Why does it transpile to Rust instead of having its own runtime?**
 
-JavaScript transpilation means:
+Rust transpilation means:
 
-- Zero extra dependencies to run programs (just `node`)
-- Easy to inspect and debug the generated code
-- Simple implementation — no bytecode, no VM
-- The language can be demoed instantly in any browser (potential future playground)
+- The compiler emits readable, inspectable Rust source
+- Programs compile to native binaries — no VM, no interpreter overhead
+- Leverages Rust's excellent type system and memory safety at runtime
+- Easy to distribute: a single binary with no external runtime dependency
 
 ---
 
@@ -50,13 +50,13 @@ OOGA MY_CONSTANT BE 100     OOF also fine
 
 **Q: Does Ooga Booga have arrays or objects?**
 
-Not natively. The language is intentionally minimal. Because the backend is JavaScript, you can store comma-separated strings and parse them manually, but there is no first-class array or object type in the current version. This is on the [Roadmap](roadmap.md).
+Not natively. The language is intentionally minimal. There is no first-class array or object type in the current version. This is on the [Roadmap](roadmap.md).
 
 ---
 
-**Q: Can I call JavaScript functions directly?**
+**Q: Can I call Rust functions directly?**
 
-Not from Ooga Booga syntax. You would need to extend `oogac` to add an FFI or inline-JS escape hatch. This is not currently planned.
+Not from Ooga Booga syntax. The generated Rust lives in `.ooga-gen/` — you could add a `build.rs` or a hand-written Rust file there that exposes helper functions, but there is no FFI mechanism in the language itself. This is not currently planned.
 
 ---
 
@@ -70,7 +70,7 @@ Rust produces fast, correct, memory-safe code. For a compiler, correctness is pa
 
 **Q: Can I embed `oogac` as a library?**
 
-The core pipeline (lexer, parser, semantic, codegen) is structured as separate modules. It would be straightforward to publish them as a `lib` crate. This is not currently packaged that way, but contributions welcome.
+Yes — the core pipeline (lexer, parser, semantic, codegen) is published as a Rust library crate (`oogac` lib). Both the `oogac` and `ooga` binaries use it via `use oogac::...`. You can add `oogac` as a dependency in your own Rust project.
 
 ---
 
@@ -84,16 +84,10 @@ No. The caveman error messages are a feature, not a bug. UGH.
 
 **Q: Do I need Node.js?**
 
-You need Node.js only to *run* the generated JavaScript. You can use `oogac compile` without Node.js to produce a `.js` file and run it with any JavaScript runtime (Deno, Bun, etc.).
+No. Ooga Booga compiles to native Rust binaries. You only need Rust installed (via `rustup`). Run `./install-ooga.sh` to set up the toolchain.
 
 ---
 
 **Q: `HEAR` doesn't work — what do I do?**
 
-Install `readline-sync`:
-
-```bash
-npm install readline-sync
-```
-
-See the [Input & Output](language/io.md) page for details.
+`HEAR` reads a line from stdin using `stdin().read_line()` in the generated Rust. Make sure you are running the compiled binary in a terminal (not piping from /dev/null). See the [Input & Output](language/io.md) page for details.

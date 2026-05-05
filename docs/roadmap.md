@@ -62,7 +62,7 @@ The parser currently stops at the first parse error. Improved error recovery wou
 
 ### Source maps
 
-Generate JavaScript source maps so that Node.js stack traces point back to `.ooga` line numbers.
+Generate Rust source maps or debug annotations so that panic stack traces and error output point back to `.ooga` line numbers.
 
 ---
 
