@@ -40,15 +40,36 @@ pub enum Token {
     Or,
     Not,
 
-    // ── Boolean / null literals ───────────────────────────────────────────
+    // ── Boolean literals ─────────────────────────────────────────────────
     Yeah, // true
     Nah,  // false
-    Void, // null / nothing
+
+    // ── Type keywords ─────────────────────────────────────────────────────
+    Teenyrock,   // i8
+    Smallrock,   // i16
+    Rock,        // i32
+    Bigrock,     // i64
+    Hugerock,    // i128
+    Cliffrock,   // isize
+    Teenypebble, // u8
+    Smallpebble, // u16
+    Pebble,      // u32
+    Bigpebble,   // u64
+    Hugepebble,  // u128
+    Cliffpebble, // usize
+    Drip,        // f32
+    Bigdrip,     // f64
+    Grunt,       // bool
+    Scratch,     // char
+    Words,       // String
+    Nothing,     // ()
 
     // ── Punctuation ───────────────────────────────────────────────────────
     LParen,
     RParen,
     Comma,
+    Colon,   // :
+    Arrow,   // ->
     Newline,
 
     // ── Sentinel ──────────────────────────────────────────────────────────
@@ -166,6 +187,22 @@ impl<'src> Lexer<'src> {
             }
             if ch == b',' {
                 tokens.push(Spanned::new(Token::Comma, self.line, self.col));
+                self.advance();
+                last_was_newline = false;
+                continue;
+            }
+            if ch == b':' {
+                tokens.push(Spanned::new(Token::Colon, self.line, self.col));
+                self.advance();
+                last_was_newline = false;
+                continue;
+            }
+            if ch == b'-'
+                && self.pos + 1 < self.src.len()
+                && self.src[self.pos + 1] == b'>'
+            {
+                tokens.push(Spanned::new(Token::Arrow, self.line, self.col));
+                self.advance();
                 self.advance();
                 last_was_newline = false;
                 continue;
@@ -343,7 +380,25 @@ fn keyword_or_ident(word: &str) -> Token {
         "NOT" => Token::Not,
         "YEAH" => Token::Yeah,
         "NAH" => Token::Nah,
-        "VOID" => Token::Void,
+        // ── Type keywords ──────────────────────────────────────────────
+        "TEENYROCK" => Token::Teenyrock,
+        "SMALLROCK" => Token::Smallrock,
+        "ROCK" => Token::Rock,
+        "BIGROCK" => Token::Bigrock,
+        "HUGEROCK" => Token::Hugerock,
+        "CLIFFROCK" => Token::Cliffrock,
+        "TEENYPEBBLE" => Token::Teenypebble,
+        "SMALLPEBBLE" => Token::Smallpebble,
+        "PEBBLE" => Token::Pebble,
+        "BIGPEBBLE" => Token::Bigpebble,
+        "HUGEPEBBLE" => Token::Hugepebble,
+        "CLIFFPEBBLE" => Token::Cliffpebble,
+        "DRIP" => Token::Drip,
+        "BIGDRIP" => Token::Bigdrip,
+        "GRUNT" => Token::Grunt,
+        "SCRATCH" => Token::Scratch,
+        "WORDS" => Token::Words,
+        "NOTHING" => Token::Nothing,
         other => Token::Ident(other.to_string()),
     }
 }
@@ -423,10 +478,28 @@ mod tests {
 
     #[test]
     fn test_boolean_literals() {
-        let tokens = lex("YEAH NAH VOID");
+        let tokens = lex("YEAH NAH");
         assert_eq!(tokens[0], Token::Yeah);
         assert_eq!(tokens[1], Token::Nah);
-        assert_eq!(tokens[2], Token::Void);
+    }
+
+    #[test]
+    fn test_type_keywords() {
+        let tokens = lex("ROCK BIGROCK WORDS GRUNT DRIP BIGDRIP NOTHING");
+        assert_eq!(tokens[0], Token::Rock);
+        assert_eq!(tokens[1], Token::Bigrock);
+        assert_eq!(tokens[2], Token::Words);
+        assert_eq!(tokens[3], Token::Grunt);
+        assert_eq!(tokens[4], Token::Drip);
+        assert_eq!(tokens[5], Token::Bigdrip);
+        assert_eq!(tokens[6], Token::Nothing);
+    }
+
+    #[test]
+    fn test_colon_and_arrow() {
+        let tokens = lex(": ->");
+        assert_eq!(tokens[0], Token::Colon);
+        assert_eq!(tokens[1], Token::Arrow);
     }
 
     #[test]
@@ -455,10 +528,11 @@ mod tests {
 
     #[test]
     fn test_punctuation() {
-        let tokens = lex("( ) ,");
+        let tokens = lex("( ) , :");
         assert_eq!(tokens[0], Token::LParen);
         assert_eq!(tokens[1], Token::RParen);
         assert_eq!(tokens[2], Token::Comma);
+        assert_eq!(tokens[3], Token::Colon);
     }
 
     #[test]

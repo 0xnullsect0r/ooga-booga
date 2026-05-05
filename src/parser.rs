@@ -132,7 +132,12 @@ impl Parser {
     fn parse_var_decl(&mut self) -> OogaResult<Statement> {
         let span = self.peek_span();
         self.advance(); // OOGA
-        let name = self.expect_ident("OOGA NEEDS NAME AFTER IT. LIKE: OOGA x")?;
+        let name = self.expect_ident(
+            "OOGA NEEDS NAME AFTER IT. LIKE: OOGA x: ROCK BE 42",
+        )?;
+        // Expect : Type annotation (required)
+        self.expect(&Token::Colon)?;
+        let type_ann = self.parse_type_annotation()?;
         let initializer = if matches!(self.peek(), Token::Be) {
             self.advance(); // BE
             Some(self.parse_expr()?)
@@ -142,6 +147,7 @@ impl Parser {
         self.expect_newline()?;
         Ok(Statement::VarDecl {
             name,
+            type_ann,
             initializer,
             span,
         })
@@ -243,10 +249,15 @@ impl Parser {
     fn parse_func_def(&mut self) -> OogaResult<Statement> {
         let span = self.peek_span();
         self.advance(); // MAGIC
-        let name = self.expect_ident("MAGIC NEEDS FUNCTION NAME. LIKE: MAGIC fib(n)")?;
+        let name = self.expect_ident(
+            "MAGIC NEEDS FUNCTION NAME. LIKE: MAGIC fib(n: ROCK) -> ROCK",
+        )?;
         self.expect(&Token::LParen)?;
-        let params = self.parse_param_list()?;
+        let params = self.parse_typed_param_list()?;
         self.expect(&Token::RParen)?;
+        // -> ReturnType (required)
+        self.expect(&Token::Arrow)?;
+        let return_type = self.parse_type_annotation()?;
         self.expect_newline()?;
         let body = self.parse_block()?;
         self.expect(&Token::Ugha)?;
@@ -254,22 +265,64 @@ impl Parser {
         Ok(Statement::FuncDef {
             name,
             params,
+            return_type,
             body,
             span,
         })
     }
 
-    fn parse_param_list(&mut self) -> OogaResult<Vec<String>> {
+    fn parse_typed_param_list(&mut self) -> OogaResult<Vec<(String, TypeAnnotation)>> {
         let mut params = Vec::new();
         if matches!(self.peek(), Token::RParen) {
             return Ok(params);
         }
-        params.push(self.expect_ident("EXPECTED PARAMETER NAME IN FUNCTION DEFINITION")?);
+        let pname = self.expect_ident("EXPECTED PARAMETER NAME IN FUNCTION DEFINITION")?;
+        self.expect(&Token::Colon)?;
+        let ptype = self.parse_type_annotation()?;
+        params.push((pname, ptype));
         while matches!(self.peek(), Token::Comma) {
             self.advance(); // ,
-            params.push(self.expect_ident("EXPECTED PARAMETER NAME AFTER COMMA")?);
+            let pname = self.expect_ident("EXPECTED PARAMETER NAME AFTER COMMA")?;
+            self.expect(&Token::Colon)?;
+            let ptype = self.parse_type_annotation()?;
+            params.push((pname, ptype));
         }
         Ok(params)
+    }
+
+    fn parse_type_annotation(&mut self) -> OogaResult<TypeAnnotation> {
+        let span = self.peek_span();
+        let ann = match self.peek() {
+            Token::Teenyrock => TypeAnnotation::Teenyrock,
+            Token::Smallrock => TypeAnnotation::Smallrock,
+            Token::Rock => TypeAnnotation::Rock,
+            Token::Bigrock => TypeAnnotation::Bigrock,
+            Token::Hugerock => TypeAnnotation::Hugerock,
+            Token::Cliffrock => TypeAnnotation::Cliffrock,
+            Token::Teenypebble => TypeAnnotation::Teenypebble,
+            Token::Smallpebble => TypeAnnotation::Smallpebble,
+            Token::Pebble => TypeAnnotation::Pebble,
+            Token::Bigpebble => TypeAnnotation::Bigpebble,
+            Token::Hugepebble => TypeAnnotation::Hugepebble,
+            Token::Cliffpebble => TypeAnnotation::Cliffpebble,
+            Token::Drip => TypeAnnotation::Drip,
+            Token::Bigdrip => TypeAnnotation::Bigdrip,
+            Token::Grunt => TypeAnnotation::Grunt,
+            Token::Scratch => TypeAnnotation::Scratch,
+            Token::Words => TypeAnnotation::Words,
+            Token::Nothing => TypeAnnotation::Nothing,
+            other => {
+                return Err(OogaError::parse(
+                    span,
+                    format!(
+                        "CAVE NEED TYPE NAME HERE (ROCK, WORDS, GRUNT, etc.) BUT GOT {:?}. NAME YOUR ROCKS!",
+                        other
+                    ),
+                ))
+            }
+        };
+        self.advance();
+        Ok(ann)
     }
 
     fn parse_return(&mut self) -> OogaResult<Statement> {
@@ -544,13 +597,6 @@ impl Parser {
                     span,
                 })
             }
-            Token::Void => {
-                self.advance();
-                Ok(Expr::Literal {
-                    value: Literal::Void,
-                    span,
-                })
-            }
             Token::LParen => {
                 self.advance(); // (
                 let inner = self.parse_expr()?;
@@ -604,24 +650,34 @@ mod tests {
 
     #[test]
     fn test_var_decl_no_init() {
-        let prog = parse("OOGA x");
+        let prog = parse("OOGA x: ROCK");
         assert_eq!(prog.statements.len(), 1);
-        matches!(
-            &prog.statements[0],
-            Statement::VarDecl { name, initializer: None, .. } if name == "x"
-        );
+        match &prog.statements[0] {
+            Statement::VarDecl {
+                name,
+                type_ann,
+                initializer: None,
+                ..
+            } => {
+                assert_eq!(name, "x");
+                assert_eq!(*type_ann, TypeAnnotation::Rock);
+            }
+            _ => panic!("expected VarDecl"),
+        }
     }
 
     #[test]
     fn test_var_decl_with_init() {
-        let prog = parse("OOGA count BE 0");
+        let prog = parse("OOGA count: ROCK BE 0");
         match &prog.statements[0] {
             Statement::VarDecl {
                 name,
+                type_ann,
                 initializer: Some(_),
                 ..
             } => {
                 assert_eq!(name, "count");
+                assert_eq!(*type_ann, TypeAnnotation::Rock);
             }
             _ => panic!("expected VarDecl"),
         }
@@ -659,8 +715,38 @@ mod tests {
 
     #[test]
     fn test_func_def() {
-        let prog = parse("MAGIC add(a, b)\nGIVEBACK a PLUS b\nUGHA");
-        assert!(matches!(&prog.statements[0], Statement::FuncDef { .. }));
+        let prog = parse("MAGIC add(a: ROCK, b: ROCK) -> ROCK\nGIVEBACK a PLUS b\nUGHA");
+        match &prog.statements[0] {
+            Statement::FuncDef {
+                name,
+                params,
+                return_type,
+                ..
+            } => {
+                assert_eq!(name, "add");
+                assert_eq!(params.len(), 2);
+                assert_eq!(params[0].0, "a");
+                assert_eq!(params[0].1, TypeAnnotation::Rock);
+                assert_eq!(*return_type, TypeAnnotation::Rock);
+            }
+            _ => panic!("expected FuncDef"),
+        }
+    }
+
+    #[test]
+    fn test_func_def_no_params() {
+        let prog = parse("MAGIC hello() -> NOTHING\nSAY \"hi\"\nUGHA");
+        match &prog.statements[0] {
+            Statement::FuncDef {
+                params,
+                return_type,
+                ..
+            } => {
+                assert!(params.is_empty());
+                assert_eq!(*return_type, TypeAnnotation::Nothing);
+            }
+            _ => panic!("expected FuncDef"),
+        }
     }
 
     #[test]

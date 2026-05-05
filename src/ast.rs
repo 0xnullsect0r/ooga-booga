@@ -1,5 +1,82 @@
 use crate::error::Span;
 
+/// Caveman type names mapping to Rust primitive types.
+#[derive(Debug, Clone, PartialEq)]
+pub enum TypeAnnotation {
+    Teenyrock,   // i8
+    Smallrock,   // i16
+    Rock,        // i32
+    Bigrock,     // i64
+    Hugerock,    // i128
+    Cliffrock,   // isize
+    Teenypebble, // u8
+    Smallpebble, // u16
+    Pebble,      // u32
+    Bigpebble,   // u64
+    Hugepebble,  // u128
+    Cliffpebble, // usize
+    Drip,        // f32
+    Bigdrip,     // f64
+    Grunt,       // bool
+    Scratch,     // char
+    Words,       // String
+    Nothing,     // ()
+}
+
+impl TypeAnnotation {
+    /// Emit the corresponding Rust type name.
+    pub fn to_rust(&self) -> &'static str {
+        match self {
+            TypeAnnotation::Teenyrock => "i8",
+            TypeAnnotation::Smallrock => "i16",
+            TypeAnnotation::Rock => "i32",
+            TypeAnnotation::Bigrock => "i64",
+            TypeAnnotation::Hugerock => "i128",
+            TypeAnnotation::Cliffrock => "isize",
+            TypeAnnotation::Teenypebble => "u8",
+            TypeAnnotation::Smallpebble => "u16",
+            TypeAnnotation::Pebble => "u32",
+            TypeAnnotation::Bigpebble => "u64",
+            TypeAnnotation::Hugepebble => "u128",
+            TypeAnnotation::Cliffpebble => "usize",
+            TypeAnnotation::Drip => "f32",
+            TypeAnnotation::Bigdrip => "f64",
+            TypeAnnotation::Grunt => "bool",
+            TypeAnnotation::Scratch => "char",
+            TypeAnnotation::Words => "String",
+            TypeAnnotation::Nothing => "()",
+        }
+    }
+
+    /// Default-value initialiser for uninitialised declarations.
+    pub fn default_value(&self) -> &'static str {
+        match self {
+            TypeAnnotation::Teenyrock
+            | TypeAnnotation::Smallrock
+            | TypeAnnotation::Rock
+            | TypeAnnotation::Bigrock
+            | TypeAnnotation::Hugerock
+            | TypeAnnotation::Cliffrock
+            | TypeAnnotation::Teenypebble
+            | TypeAnnotation::Smallpebble
+            | TypeAnnotation::Pebble
+            | TypeAnnotation::Bigpebble
+            | TypeAnnotation::Hugepebble
+            | TypeAnnotation::Cliffpebble => "0",
+            TypeAnnotation::Drip | TypeAnnotation::Bigdrip => "0.0",
+            TypeAnnotation::Grunt => "false",
+            TypeAnnotation::Scratch => "'\\0'",
+            TypeAnnotation::Words => "String::new()",
+            TypeAnnotation::Nothing => "()",
+        }
+    }
+
+    /// Whether this is a String-like type (affects PLUS codegen).
+    pub fn is_words(&self) -> bool {
+        matches!(self, TypeAnnotation::Words)
+    }
+}
+
 /// The root of the AST: an ordered list of top-level statements.
 #[allow(dead_code)]
 #[derive(Debug, Clone)]
@@ -11,9 +88,10 @@ pub struct Program {
 #[allow(dead_code)]
 #[derive(Debug, Clone)]
 pub enum Statement {
-    /// OOGA name  /  OOGA name BE expr
+    /// OOGA name: Type  /  OOGA name: Type BE expr
     VarDecl {
         name: String,
+        type_ann: TypeAnnotation,
         initializer: Option<Expr>,
         span: Span,
     },
@@ -47,10 +125,11 @@ pub enum Statement {
     Break { span: Span },
     /// SKIP
     Continue { span: Span },
-    /// MAGIC name(params) ... UGHA
+    /// MAGIC name(params: Types) -> ReturnType ... UGHA
     FuncDef {
         name: String,
-        params: Vec<String>,
+        params: Vec<(String, TypeAnnotation)>,
+        return_type: TypeAnnotation,
         body: Vec<Statement>,
         span: Span,
     },
@@ -129,7 +208,6 @@ pub enum Literal {
     Float(f64),
     Str(String),
     Bool(bool),
-    Void,
 }
 
 #[derive(Debug, Clone, PartialEq)]

@@ -1,25 +1,17 @@
-mod ast;
-mod codegen;
-mod error;
-mod lexer;
-mod parser;
-mod semantic;
-
 use clap::{Parser as ClapParser, Subcommand};
+use oogac::codegen::Codegen;
+use oogac::error::OogaError;
+use oogac::lexer::Lexer;
+use oogac::parser::Parser;
+use oogac::semantic::analyse;
 use std::path::PathBuf;
 use std::process;
-
-use codegen::Codegen;
-use error::OogaError;
-use lexer::Lexer;
-use parser::Parser;
-use semantic::analyse;
 
 #[derive(ClapParser)]
 #[command(
     name = "oogac",
     about = "UGH! OOGAC — THE OOGA BOOGA CAVE COMPILER",
-    long_about = "Compile .ooga cave scripts into runnable JavaScript.\n\
+    long_about = "Compile .ooga cave scripts into Rust source code.\n\
                   Use MAGIC to make functions. Use UGGA WHILE to make loops.\n\
                   Cave creature happy when code compiles. Cave creature VERY SAD on error."
 )]
@@ -30,15 +22,15 @@ struct Cli {
 
 #[derive(Subcommand)]
 enum Command {
-    /// Transpile a .ooga source file to JavaScript.
+    /// Transpile a .ooga source file to Rust.
     Compile {
         /// Source .ooga file to compile.
         file: PathBuf,
-        /// Output JavaScript file (defaults to <input>.js).
+        /// Output Rust file (defaults to <input>.rs).
         #[arg(short, long)]
         output: Option<PathBuf>,
     },
-    /// Transpile and immediately run a .ooga file with node.
+    /// Transpile and immediately compile+run a .ooga file via rustc.
     Run {
         /// Source .ooga file to run.
         file: PathBuf,
@@ -57,9 +49,9 @@ fn main() {
 
     match cli.command {
         Command::Compile { file, output } => {
-            let js = compile_file(&file);
-            let out_path = output.unwrap_or_else(|| file.with_extension("js"));
-            if let Err(e) = std::fs::write(&out_path, &js) {
+            let rust_src = compile_file(&file);
+            let out_path = output.unwrap_or_else(|| file.with_extension("rs"));
+            if let Err(e) = std::fs::write(&out_path, &rust_src) {
                 eprintln!(
                     "UGH! CAVE BRAIN NO WRITE FILE '{}': {}",
                     out_path.display(),
@@ -67,30 +59,41 @@ fn main() {
                 );
                 process::exit(1);
             }
-            eprintln!("GOOD JOB! CAVE SCRIPT READY: {}", out_path.display());
+            eprintln!("GOOD JOB! RUST SCROLL READY: {}", out_path.display());
         }
 
         Command::Run { file, args } => {
-            // Write to a temp file, then execute with node.
-            let js = compile_file(&file);
-            let tmp = file.with_extension("js");
-            if let Err(e) = std::fs::write(&tmp, &js) {
-                eprintln!("UGH! CAVE BRAIN NO WRITE TEMP FILE: {}", e);
+            let rust_src = compile_file(&file);
+            let tmp_rs = std::env::temp_dir().join("__ooga_run__.rs");
+            let tmp_bin = std::env::temp_dir().join("__ooga_run__");
+            std::fs::write(&tmp_rs, &rust_src).expect("UGH! CAVE NO WRITE TEMP");
+
+            // Compile with rustc
+            let status = process::Command::new("rustc")
+                .arg(&tmp_rs)
+                .arg("-o")
+                .arg(&tmp_bin)
+                .status()
+                .unwrap_or_else(|e| {
+                    eprintln!("UGH! CAVE NEED RUSTC. INSTALL AT https://rustup.rs\nERROR: {}", e);
+                    process::exit(1);
+                });
+            if !status.success() {
+                eprintln!("BONK! RUSTC SAY NO. CAVE CODE BAD.");
+                let _ = std::fs::remove_file(&tmp_rs);
                 process::exit(1);
             }
-            let mut cmd = process::Command::new("node");
-            cmd.arg(&tmp);
-            cmd.args(&args);
-            let status = cmd.status().unwrap_or_else(|e| {
-                eprintln!(
-                    "UGH! CAVE NEED NODE.JS TO RUN. INSTALL AT https://nodejs.org\nERROR: {}",
-                    e
-                );
-                process::exit(1);
-            });
-            // Clean up temp file.
-            let _ = std::fs::remove_file(&tmp);
-            process::exit(status.code().unwrap_or(1));
+
+            let exit_status = process::Command::new(&tmp_bin)
+                .args(&args)
+                .status()
+                .unwrap_or_else(|e| {
+                    eprintln!("UGH! CAVE NO RUN BINARY: {}", e);
+                    process::exit(1);
+                });
+            let _ = std::fs::remove_file(&tmp_rs);
+            let _ = std::fs::remove_file(&tmp_bin);
+            process::exit(exit_status.code().unwrap_or(1));
         }
 
         Command::Check { file } => {
@@ -108,7 +111,6 @@ fn main() {
     }
 }
 
-/// Read source or exit with a friendly message.
 fn read_source(path: &PathBuf) -> String {
     std::fs::read_to_string(path).unwrap_or_else(|e| {
         eprintln!("UGH! CAVE BRAIN NO READ FILE '{}': {}", path.display(), e);
@@ -116,30 +118,20 @@ fn read_source(path: &PathBuf) -> String {
     })
 }
 
-/// Lex → parse → semantic analysis → codegen. Returns generated JS or errors.
 fn run_pipeline(src: &str) -> Result<String, Vec<OogaError>> {
-    // Lex
     let tokens = Lexer::new(src).tokenise().map_err(|e| vec![e])?;
-
-    // Parse
     let program = Parser::new(tokens).parse_program().map_err(|e| vec![e])?;
-
-    // Semantic analysis
     let errors = analyse(&program);
     if !errors.is_empty() {
         return Err(errors);
     }
-
-    // Code generation
-    let js = Codegen::new().generate(&program);
-    Ok(js)
+    Ok(Codegen::new().generate(&program))
 }
 
-/// Run the full pipeline and print errors, exiting on failure.
 fn compile_file(path: &PathBuf) -> String {
     let src = read_source(path);
     match run_pipeline(&src) {
-        Ok(js) => js,
+        Ok(rs) => rs,
         Err(errors) => {
             print_errors(&errors);
             process::exit(1);

@@ -1,18 +1,26 @@
 [package]
 name = "oogac"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2021"
 authors = ["Ooga Booga Contributors"]
-description = "The Ooga Booga esoteric programming language compiler"
+description = "The Ooga Booga esoteric programming language compiler (Rust backend)"
 license = "GPL-3.0"
 repository = "https://github.com/0xnullsect0r/ooga-booga"
 readme = "README.md"
 keywords = ["esolang", "compiler", "transpiler", "caveman"]
 categories = ["command-line-utilities", "development-tools"]
 
+[lib]
+name = "oogac"
+path = "src/lib.rs"
+
 [[bin]]
 name = "oogac"
-path = "src/main.rs"
+path = "src/bin/oogac.rs"
+
+[[bin]]
+name = "ooga"
+path = "src/bin/ooga.rs"
 
 [dependencies]
 clap = { version = "4", features = ["derive"] }

@@ -1,32 +1,15 @@
-OOF Fibonacci — iterative approach using UGGA WHILE
-OOF Prints the first 20 Fibonacci numbers.
+OOF Fibonacci sequence — cave count spiral numbers!
 
-OOGA a BE 0
-OOGA b BE 1
-OOGA count BE 0
-
-SAY "Fibonacci sequence (first 20):"
-
-UGGA WHILE count SMALLR 20
-    SAY a
-    OOGA temp BE a PLUS b
-    a GETS b
-    b GETS temp
-    count GETS count PLUS 1
-UGHA
-
-SAY "---"
-
-OOF Bonus: recursive Fibonacci (shows recursion depth)
-MAGIC fib(n)
-    IFF n SMALLR IS 1
+MAGIC fib(n: ROCK) -> ROCK
+    IFF n SMALLR 2
         GIVEBACK n
     UGHA
     GIVEBACK fib(n MINUS 1) PLUS fib(n MINUS 2)
 UGHA
 
-SAY "fib(10) ="
-SAY fib(10)
-
-SAY "fib(15) ="
-SAY fib(15)
+OOF Print fib(0) through fib(10)
+OOGA i: ROCK BE 0
+UGGA WHILE i SMALLR IS 10
+    SAY fib(i)
+    i GETS i PLUS 1
+UGHA

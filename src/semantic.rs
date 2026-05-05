@@ -29,7 +29,14 @@ impl Context {
     fn is_builtin(name: &str) -> bool {
         matches!(
             name,
-            "NUMBR" | "WORDY" | "BIGNESS" | "FLOORY" | "ROUNDY" | "ROOTY"
+            "NUMBR"
+                | "NUMBR_BIG"
+                | "NUMBR_DRIP"
+                | "WORDY"
+                | "BIGNESS"
+                | "FLOORY"
+                | "ROUNDY"
+                | "ROOTY"
         )
     }
 
@@ -66,6 +73,7 @@ fn check_statement(stmt: &Statement, ctx: &mut Context, errors: &mut Vec<OogaErr
     match stmt {
         Statement::VarDecl {
             name,
+            type_ann: _,
             initializer,
             span,
         } => {
@@ -163,19 +171,20 @@ fn check_statement(stmt: &Statement, ctx: &mut Context, errors: &mut Vec<OogaErr
             params,
             body,
             span,
+            ..
         } => {
             // Register function name in outer scope
             ctx.functions.insert(name.clone());
             // Build inner context for function body
             let mut inner = Context {
-                declared: params.iter().cloned().collect(),
+                declared: params.iter().map(|(n, _)| n.clone()).collect(),
                 in_function: true,
                 in_loop: false,
                 functions: ctx.functions.clone(),
             };
             // Check for duplicate parameter names
             let mut seen_params = HashSet::new();
-            for p in params {
+            for (p, _) in params {
                 if !seen_params.insert(p) {
                     errors.push(OogaError::semantic(
                         span.clone(),
@@ -270,7 +279,7 @@ mod tests {
 
     #[test]
     fn test_no_errors_on_valid_program() {
-        let errors = analyse_src("OOGA x BE 1\nSAY x");
+        let errors = analyse_src("OOGA x: ROCK BE 1\nSAY x");
         assert!(errors.is_empty(), "expected no errors, got: {:?}", errors);
     }
 
@@ -297,19 +306,21 @@ mod tests {
 
     #[test]
     fn test_func_params_in_scope() {
-        let errors = analyse_src("MAGIC double(n)\nGIVEBACK n TIMES 2\nUGHA");
+        let errors =
+            analyse_src("MAGIC double(n: ROCK) -> ROCK\nGIVEBACK n TIMES 2\nUGHA");
         assert!(errors.is_empty(), "params should be in scope: {:?}", errors);
     }
 
     #[test]
     fn test_unknown_function_call() {
-        let errors = analyse_src("OOGA x BE ghost(1)");
+        let errors = analyse_src("OOGA x: ROCK BE ghost(1)");
         assert!(!errors.is_empty());
     }
 
     #[test]
     fn test_builtin_functions_allowed() {
-        let errors = analyse_src("OOGA x BE 3.7\nOOGA n BE FLOORY(x)");
+        let errors =
+            analyse_src("OOGA x: BIGDRIP BE 3.7\nOOGA n: BIGDRIP BE FLOORY(x)");
         assert!(
             errors.is_empty(),
             "builtins should be allowed: {:?}",
