@@ -66,7 +66,7 @@ See [Compiler Architecture](architecture.md) for a detailed explanation of each 
 2. Wait for discussion — breaking changes to the grammar need consensus.
 3. Implement the feature across all relevant modules (see [architecture guide](architecture.md)).
 4. Add tests and documentation.
-5. Update [examples](../examples.md) if the feature is significant.
+5. Update [examples](examples.md) if the feature is significant.
 
 ### Documentation
 

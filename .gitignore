@@ -1,0 +1,11 @@
+# Build artifacts
+target/
+site/
+
+# Rust
+*.rs.bk
+Cargo.lock
+
+# Node
+node_modules/
+*.js.map

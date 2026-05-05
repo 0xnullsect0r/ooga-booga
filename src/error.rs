@@ -18,6 +18,7 @@ impl std::fmt::Display for Span {
     }
 }
 
+#[allow(clippy::enum_variant_names)]
 #[derive(Error, Debug, Clone)]
 pub enum OogaError {
     #[error("UGH! CAVE BRAIN NO READ FILE: {0}")]

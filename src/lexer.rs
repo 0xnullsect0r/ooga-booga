@@ -10,21 +10,21 @@ pub enum Token {
     Ident(String),
 
     // ── Keywords ──────────────────────────────────────────────────────────
-    Ooga,      // variable declaration
-    Be,        // initialiser in OOGA x BE expr
-    Gets,      // assignment
-    Say,       // print
-    Hear,      // input
-    Iff,       // if
-    Nope,      // else / else-if
-    Ugha,      // end block
-    Ugga,      // loop prefix
-    While,     // UGGA WHILE
-    Do,        // UGGA DO (infinite loop)
-    Stop,      // break
-    Skip,      // continue
-    Magic,     // function definition
-    Giveback,  // return
+    Ooga,     // variable declaration
+    Be,       // initialiser in OOGA x BE expr
+    Gets,     // assignment
+    Say,      // print
+    Hear,     // input
+    Iff,      // if
+    Nope,     // else / else-if
+    Ugha,     // end block
+    Ugga,     // loop prefix
+    While,    // UGGA WHILE
+    Do,       // UGGA DO (infinite loop)
+    Stop,     // break
+    Skip,     // continue
+    Magic,    // function definition
+    Giveback, // return
 
     // ── Operators (word form) ──────────────────────────────────────────────
     Plus,
@@ -41,9 +41,9 @@ pub enum Token {
     Not,
 
     // ── Boolean / null literals ───────────────────────────────────────────
-    Yeah,  // true
-    Nah,   // false
-    Void,  // null / nothing
+    Yeah, // true
+    Nah,  // false
+    Void, // null / nothing
 
     // ── Punctuation ───────────────────────────────────────────────────────
     LParen,
@@ -255,11 +255,7 @@ impl<'src> Lexer<'src> {
                 self.advance();
             }
         }
-        Ok(Spanned::new(
-            Token::Str(value),
-            start_line,
-            start_col,
-        ))
+        Ok(Spanned::new(Token::Str(value), start_line, start_col))
     }
 
     fn lex_number(&mut self) -> OogaResult<Spanned> {
@@ -268,7 +264,8 @@ impl<'src> Lexer<'src> {
         while self.pos < self.src.len() && self.src[self.pos].is_ascii_digit() {
             self.advance();
         }
-        let is_float = self.pos < self.src.len() && self.src[self.pos] == b'.'
+        let is_float = self.pos < self.src.len()
+            && self.src[self.pos] == b'.'
             && self.pos + 1 < self.src.len()
             && self.src[self.pos + 1].is_ascii_digit();
 
@@ -279,13 +276,21 @@ impl<'src> Lexer<'src> {
             }
             let text = std::str::from_utf8(&self.src[start..self.pos]).unwrap();
             let v: f64 = text.parse().map_err(|_| {
-                OogaError::lex(text, Span::new(start_line, start_col), "BIG NUMBER HURT CAVE BRAIN.")
+                OogaError::lex(
+                    text,
+                    Span::new(start_line, start_col),
+                    "BIG NUMBER HURT CAVE BRAIN.",
+                )
             })?;
             Ok(Spanned::new(Token::Float(v), start_line, start_col))
         } else {
             let text = std::str::from_utf8(&self.src[start..self.pos]).unwrap();
             let v: i64 = text.parse().map_err(|_| {
-                OogaError::lex(text, Span::new(start_line, start_col), "NUMBER TOO BIG FOR CAVE MATH.")
+                OogaError::lex(
+                    text,
+                    Span::new(start_line, start_col),
+                    "NUMBER TOO BIG FOR CAVE MATH.",
+                )
             })?;
             Ok(Spanned::new(Token::Int(v), start_line, start_col))
         }

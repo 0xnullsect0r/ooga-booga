@@ -67,10 +67,7 @@ fn main() {
                 );
                 process::exit(1);
             }
-            eprintln!(
-                "GOOD JOB! CAVE SCRIPT READY: {}",
-                out_path.display()
-            );
+            eprintln!("GOOD JOB! CAVE SCRIPT READY: {}", out_path.display());
         }
 
         Command::Run { file, args } => {
@@ -114,11 +111,7 @@ fn main() {
 /// Read source or exit with a friendly message.
 fn read_source(path: &PathBuf) -> String {
     std::fs::read_to_string(path).unwrap_or_else(|e| {
-        eprintln!(
-            "UGH! CAVE BRAIN NO READ FILE '{}': {}",
-            path.display(),
-            e
-        );
+        eprintln!("UGH! CAVE BRAIN NO READ FILE '{}': {}", path.display(), e);
         process::exit(1);
     })
 }
@@ -129,9 +122,7 @@ fn run_pipeline(src: &str) -> Result<String, Vec<OogaError>> {
     let tokens = Lexer::new(src).tokenise().map_err(|e| vec![e])?;
 
     // Parse
-    let program = Parser::new(tokens)
-        .parse_program()
-        .map_err(|e| vec![e])?;
+    let program = Parser::new(tokens).parse_program().map_err(|e| vec![e])?;
 
     // Semantic analysis
     let errors = analyse(&program);

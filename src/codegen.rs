@@ -70,7 +70,9 @@ impl Codegen {
 
     fn emit_statement(&mut self, stmt: &Statement) {
         match stmt {
-            Statement::VarDecl { name, initializer, .. } => {
+            Statement::VarDecl {
+                name, initializer, ..
+            } => {
                 self.indent();
                 self.output.push_str("let ");
                 self.output.push_str(name);
@@ -149,7 +151,9 @@ impl Codegen {
                 self.output.push('\n');
             }
 
-            Statement::While { condition, body, .. } => {
+            Statement::While {
+                condition, body, ..
+            } => {
                 self.indent();
                 self.output.push_str("while (");
                 self.emit_expr(condition);
@@ -185,7 +189,9 @@ impl Codegen {
                 self.output.push_str("continue;\n");
             }
 
-            Statement::FuncDef { name, params, body, .. } => {
+            Statement::FuncDef {
+                name, params, body, ..
+            } => {
                 self.indent();
                 self.output.push_str("function ");
                 self.output.push_str(name);
@@ -257,7 +263,9 @@ impl Codegen {
                 self.output.push_str(name);
             }
 
-            Expr::BinOp { op, left, right, .. } => {
+            Expr::BinOp {
+                op, left, right, ..
+            } => {
                 self.output.push('(');
                 self.emit_expr(left);
                 self.output.push(' ');
@@ -367,7 +375,10 @@ mod tests {
         // Function should appear before any console.log
         let func_pos = js.find("function double").expect("no function");
         let call_pos = js.find("console.log").expect("no console.log");
-        assert!(func_pos < call_pos, "function should be hoisted before main code");
+        assert!(
+            func_pos < call_pos,
+            "function should be hoisted before main code"
+        );
     }
 
     #[test]

@@ -307,7 +307,11 @@ impl Parser {
             self.expect(&Token::RParen)?;
             self.expect_newline()?;
             return Ok(Statement::ExprStmt {
-                expr: Expr::FuncCall { name, args, span: span.clone() },
+                expr: Expr::FuncCall {
+                    name,
+                    args,
+                    span: span.clone(),
+                },
                 span,
             });
         }
@@ -567,10 +571,7 @@ impl Parser {
             }
             other => Err(OogaError::parse(
                 span,
-                format!(
-                    "EXPECTED EXPRESSION BUT GOT {:?}. CAVE BRAIN HURT.",
-                    other
-                ),
+                format!("EXPECTED EXPRESSION BUT GOT {:?}. CAVE BRAIN HURT.", other),
             )),
         }
     }
@@ -598,9 +599,7 @@ mod tests {
 
     fn parse(src: &str) -> Program {
         let tokens = Lexer::new(src).tokenise().expect("lex failed");
-        Parser::new(tokens)
-            .parse_program()
-            .expect("parse failed")
+        Parser::new(tokens).parse_program().expect("parse failed")
     }
 
     #[test]
@@ -617,7 +616,11 @@ mod tests {
     fn test_var_decl_with_init() {
         let prog = parse("OOGA count BE 0");
         match &prog.statements[0] {
-            Statement::VarDecl { name, initializer: Some(_), .. } => {
+            Statement::VarDecl {
+                name,
+                initializer: Some(_),
+                ..
+            } => {
                 assert_eq!(name, "count");
             }
             _ => panic!("expected VarDecl"),
@@ -672,8 +675,18 @@ mod tests {
         let prog = parse("SAY 2 PLUS 3 TIMES 4");
         match &prog.statements[0] {
             Statement::Say { value, .. } => match value {
-                Expr::BinOp { op: BinOp::Plus, right, .. } => {
-                    assert!(matches!(**right, Expr::BinOp { op: BinOp::Times, .. }));
+                Expr::BinOp {
+                    op: BinOp::Plus,
+                    right,
+                    ..
+                } => {
+                    assert!(matches!(
+                        **right,
+                        Expr::BinOp {
+                            op: BinOp::Times,
+                            ..
+                        }
+                    ));
                 }
                 _ => panic!("expected Plus at top level"),
             },
@@ -686,7 +699,13 @@ mod tests {
         let prog = parse("SAY x BIGGR IS 5");
         match &prog.statements[0] {
             Statement::Say { value, .. } => {
-                assert!(matches!(value, Expr::BinOp { op: BinOp::BiggrIs, .. }));
+                assert!(matches!(
+                    value,
+                    Expr::BinOp {
+                        op: BinOp::BiggrIs,
+                        ..
+                    }
+                ));
             }
             _ => panic!("expected Say"),
         }

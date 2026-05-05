@@ -64,7 +64,11 @@ pub fn analyse(program: &Program) -> Vec<OogaError> {
 
 fn check_statement(stmt: &Statement, ctx: &mut Context, errors: &mut Vec<OogaError>) {
     match stmt {
-        Statement::VarDecl { name, initializer, span } => {
+        Statement::VarDecl {
+            name,
+            initializer,
+            span,
+        } => {
             if let Some(init) = initializer {
                 check_expr(init, ctx, errors);
             }
@@ -119,7 +123,9 @@ fn check_statement(stmt: &Statement, ctx: &mut Context, errors: &mut Vec<OogaErr
             }
         }
 
-        Statement::While { condition, body, .. } => {
+        Statement::While {
+            condition, body, ..
+        } => {
             check_expr(condition, ctx, errors);
             let prev = ctx.in_loop;
             ctx.in_loop = true;
@@ -152,7 +158,12 @@ fn check_statement(stmt: &Statement, ctx: &mut Context, errors: &mut Vec<OogaErr
             }
         }
 
-        Statement::FuncDef { name, params, body, span } => {
+        Statement::FuncDef {
+            name,
+            params,
+            body,
+            span,
+        } => {
             // Register function name in outer scope
             ctx.functions.insert(name.clone());
             // Build inner context for function body
@@ -233,10 +244,7 @@ fn check_expr(expr: &Expr, ctx: &mut Context, errors: &mut Vec<OogaError>) {
             if !ctx.is_known_callable(name) {
                 errors.push(OogaError::semantic(
                     span.clone(),
-                    format!(
-                        "FUNCTION \"{}\" NOT KNOWN. DEFINE WITH MAGIC FIRST.",
-                        name
-                    ),
+                    format!("FUNCTION \"{}\" NOT KNOWN. DEFINE WITH MAGIC FIRST.", name),
                 ));
             }
             for arg in args {
@@ -302,7 +310,11 @@ mod tests {
     #[test]
     fn test_builtin_functions_allowed() {
         let errors = analyse_src("OOGA x BE 3.7\nOOGA n BE FLOORY(x)");
-        assert!(errors.is_empty(), "builtins should be allowed: {:?}", errors);
+        assert!(
+            errors.is_empty(),
+            "builtins should be allowed: {:?}",
+            errors
+        );
     }
 
     #[test]

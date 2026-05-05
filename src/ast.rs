@@ -24,15 +24,9 @@ pub enum Statement {
         span: Span,
     },
     /// SAY expr
-    Say {
-        value: Expr,
-        span: Span,
-    },
+    Say { value: Expr, span: Span },
     /// HEAR name
-    Hear {
-        name: String,
-        span: Span,
-    },
+    Hear { name: String, span: Span },
     /// IFF expr ... [NOPE IFF expr ...] [NOPE ...] UGHA
     If {
         condition: Expr,
@@ -48,18 +42,11 @@ pub enum Statement {
         span: Span,
     },
     /// UGGA DO ... UGHA
-    Loop {
-        body: Vec<Statement>,
-        span: Span,
-    },
+    Loop { body: Vec<Statement>, span: Span },
     /// STOP
-    Break {
-        span: Span,
-    },
+    Break { span: Span },
     /// SKIP
-    Continue {
-        span: Span,
-    },
+    Continue { span: Span },
     /// MAGIC name(params) ... UGHA
     FuncDef {
         name: String,
@@ -68,15 +55,9 @@ pub enum Statement {
         span: Span,
     },
     /// GIVEBACK [expr]
-    Return {
-        value: Option<Expr>,
-        span: Span,
-    },
+    Return { value: Option<Expr>, span: Span },
     /// A bare expression used as a statement (function calls).
-    ExprStmt {
-        expr: Expr,
-        span: Span,
-    },
+    ExprStmt { expr: Expr, span: Span },
 }
 
 #[allow(dead_code)]
