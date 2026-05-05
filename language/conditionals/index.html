@@ -1339,45 +1339,34 @@
 <p>Any number of <code>NOPE IFF</code> branches may be chained before the final <code>NOPE</code>.</p>
 <hr />
 <h2 id="truthy-and-falsy">Truthy and falsy<a class="headerlink" href="#truthy-and-falsy" title="Permanent link">&para;</a></h2>
-<p>Like JavaScript, the condition is evaluated for truthiness:</p>
+<p>Ooga Booga is strongly typed — conditions must be <code>GRUNT</code> (bool) expressions. Use comparison operators to produce boolean values:</p>
 <table>
 <thead>
 <tr>
-<th>Value</th>
-<th>Truthy?</th>
+<th>Expression</th>
+<th>Result</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>Non-zero int</td>
-<td>Yes</td>
+<td><code>x BIGGR 0</code></td>
+<td><code>YEAH</code> if x &gt; 0, else <code>NAH</code></td>
+</tr>
+<tr>
+<td><code>x IS 0</code></td>
+<td><code>YEAH</code> if x equals 0</td>
 </tr>
 <tr>
 <td><code>YEAH</code></td>
-<td>Yes</td>
-</tr>
-<tr>
-<td>Non-empty string</td>
-<td>Yes</td>
-</tr>
-<tr>
-<td><code>0</code></td>
-<td>No</td>
+<td>Always <code>YEAH</code></td>
 </tr>
 <tr>
 <td><code>NAH</code></td>
-<td>No</td>
-</tr>
-<tr>
-<td><code>VOID</code></td>
-<td>No</td>
-</tr>
-<tr>
-<td><code>""</code></td>
-<td>No</td>
+<td>Always <code>NAH</code></td>
 </tr>
 </tbody>
 </table>
+<p>Non-boolean expressions used directly as conditions will produce a type error.</p>
 <hr />
 <h2 id="nested-conditionals">Nested conditionals<a class="headerlink" href="#nested-conditionals" title="Permanent link">&para;</a></h2>
 <div class="language-text highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>IFF x BIGGR 0

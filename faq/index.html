@@ -1249,13 +1249,13 @@
 <p><strong>Q: Is the language Turing complete?</strong></p>
 <p>Yes. Ooga Booga has unbounded while loops (<code>UGGA WHILE</code>), recursion (<code>MAGIC</code>), mutable state (<code>OOGA</code> + <code>GETS</code>), and conditional branching (<code>IFF</code>). A formal argument is on the <a href="../turing-completeness/">Turing Completeness</a> page.</p>
 <hr />
-<p><strong>Q: Why does it transpile to JavaScript instead of having its own runtime?</strong></p>
-<p>JavaScript transpilation means:</p>
+<p><strong>Q: Why does it transpile to Rust instead of having its own runtime?</strong></p>
+<p>Rust transpilation means:</p>
 <ul>
-<li>Zero extra dependencies to run programs (just <code>node</code>)</li>
-<li>Easy to inspect and debug the generated code</li>
-<li>Simple implementation — no bytecode, no VM</li>
-<li>The language can be demoed instantly in any browser (potential future playground)</li>
+<li>The compiler emits readable, inspectable Rust source</li>
+<li>Programs compile to native binaries — no VM, no interpreter overhead</li>
+<li>Leverages Rust's excellent type system and memory safety at runtime</li>
+<li>Easy to distribute: a single binary with no external runtime dependency</li>
 </ul>
 <hr />
 <h2 id="language">Language<a class="headerlink" href="#language" title="Permanent link">&para;</a></h2>
@@ -1269,30 +1269,27 @@
 </span></code></pre></div>
 <hr />
 <p><strong>Q: Does Ooga Booga have arrays or objects?</strong></p>
-<p>Not natively. The language is intentionally minimal. Because the backend is JavaScript, you can store comma-separated strings and parse them manually, but there is no first-class array or object type in the current version. This is on the <a href="../roadmap/">Roadmap</a>.</p>
+<p>Not natively. The language is intentionally minimal. There is no first-class array or object type in the current version. This is on the <a href="../roadmap/">Roadmap</a>.</p>
 <hr />
-<p><strong>Q: Can I call JavaScript functions directly?</strong></p>
-<p>Not from Ooga Booga syntax. You would need to extend <code>oogac</code> to add an FFI or inline-JS escape hatch. This is not currently planned.</p>
+<p><strong>Q: Can I call Rust functions directly?</strong></p>
+<p>Not from Ooga Booga syntax. The generated Rust lives in <code>.ooga-gen/</code> — you could add a <code>build.rs</code> or a hand-written Rust file there that exposes helper functions, but there is no FFI mechanism in the language itself. This is not currently planned.</p>
 <hr />
 <h2 id="compiler">Compiler<a class="headerlink" href="#compiler" title="Permanent link">&para;</a></h2>
 <p><strong>Q: Why Rust for the compiler?</strong></p>
 <p>Rust produces fast, correct, memory-safe code. For a compiler, correctness is paramount. Rust's strong type system and exhaustive pattern matching make it excellent for AST traversal and transformation. It also makes <code>oogac</code> easy to distribute as a single binary.</p>
 <hr />
 <p><strong>Q: Can I embed <code>oogac</code> as a library?</strong></p>
-<p>The core pipeline (lexer, parser, semantic, codegen) is structured as separate modules. It would be straightforward to publish them as a <code>lib</code> crate. This is not currently packaged that way, but contributions welcome.</p>
+<p>Yes — the core pipeline (lexer, parser, semantic, codegen) is published as a Rust library crate (<code>oogac</code> lib). Both the <code>oogac</code> and <code>ooga</code> binaries use it via <code>use oogac::...</code>. You can add <code>oogac</code> as a dependency in your own Rust project.</p>
 <hr />
 <p><strong>Q: The error messages are funny. Can I turn them off?</strong></p>
 <p>No. The caveman error messages are a feature, not a bug. UGH.</p>
 <hr />
 <h2 id="running-programs">Running programs<a class="headerlink" href="#running-programs" title="Permanent link">&para;</a></h2>
 <p><strong>Q: Do I need Node.js?</strong></p>
-<p>You need Node.js only to <em>run</em> the generated JavaScript. You can use <code>oogac compile</code> without Node.js to produce a <code>.js</code> file and run it with any JavaScript runtime (Deno, Bun, etc.).</p>
+<p>No. Ooga Booga compiles to native Rust binaries. You only need Rust installed (via <code>rustup</code>). Run <code>./install-ooga.sh</code> to set up the toolchain.</p>
 <hr />
 <p><strong>Q: <code>HEAR</code> doesn't work — what do I do?</strong></p>
-<p>Install <code>readline-sync</code>:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>npm<span class="w"> </span>install<span class="w"> </span>readline-sync
-</span></code></pre></div>
-<p>See the <a href="../language/io/">Input &amp; Output</a> page for details.</p>
+<p><code>HEAR</code> reads a line from stdin using <code>stdin().read_line()</code> in the generated Rust. Make sure you are running the compiled binary in a terminal (not piping from /dev/null). See the <a href="../language/io/">Input &amp; Output</a> page for details.</p>
 
 
 

@@ -1304,7 +1304,7 @@
 <th>Operator</th>
 <th>Meaning</th>
 <th>Example</th>
-<th>JS equivalent</th>
+<th>Rust equivalent</th>
 </tr>
 </thead>
 <tbody>
@@ -1329,7 +1329,7 @@
 <tr>
 <td><code>DIVVY</code></td>
 <td>Division</td>
-<td><code>10 DIVVY 4</code> → <code>2.5</code></td>
+<td><code>10 DIVVY 4</code> → <code>2</code></td>
 <td><code>/</code></td>
 </tr>
 <tr>
@@ -1352,19 +1352,19 @@
 <tr>
 <th>Operator</th>
 <th>Meaning</th>
-<th>JS equivalent</th>
+<th>Rust equivalent</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td><code>IS</code></td>
 <td>Equal</td>
-<td><code>===</code></td>
+<td><code>==</code></td>
 </tr>
 <tr>
 <td><code>ISNT</code></td>
 <td>Not equal</td>
-<td><code>!==</code></td>
+<td><code>!=</code></td>
 </tr>
 <tr>
 <td><code>BIGGR</code></td>
@@ -1406,7 +1406,7 @@
 <tr>
 <th>Operator</th>
 <th>Meaning</th>
-<th>JS equivalent</th>
+<th>Rust equivalent</th>
 </tr>
 </thead>
 <tbody>
@@ -1493,7 +1493,7 @@
 </span></code></pre></div>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
-<p>Mixing a number and a string with <code>PLUS</code> follows JavaScript's coercion rules: <code>1 PLUS "2"</code> produces <code>"12"</code>. Use <code>NUMBR()</code> or <code>WORDY()</code> to convert explicitly.</p>
+<p><code>PLUS</code> on <code>WORDS</code> (String) variables calls <code>__ooga_concat()</code> in generated Rust — it always produces a <code>String</code>. Mixing a numeric type with <code>WORDS</code> will produce a type error. Use <code>WORDY()</code> to convert a number to a string first before concatenating.</p>
 </div>
 
 

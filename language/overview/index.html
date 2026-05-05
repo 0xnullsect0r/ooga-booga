@@ -1294,13 +1294,13 @@
 
 
 <h1 id="language-overview">Language Overview<a class="headerlink" href="#language-overview" title="Permanent link">&para;</a></h1>
-<p>Ooga Booga is a dynamically typed, imperative esoteric programming language with a caveman theme. Programs are written in <code>.ooga</code> files and transpiled to JavaScript by <code>oogac</code>.</p>
+<p>Ooga Booga is a <strong>strongly typed</strong>, imperative esoteric programming language with a caveman theme. Programs are written in <code>.ooga</code> files and transpiled to Rust by <code>oogac</code>, which then compiles them to native binaries.</p>
 <hr />
 <h2 id="design-philosophy">Design philosophy<a class="headerlink" href="#design-philosophy" title="Permanent link">&para;</a></h2>
 <ul>
 <li><strong>One statement per line.</strong> Each statement occupies exactly one line (no semicolons, no braces).</li>
 <li><strong>Blocks are delimited by <code>UGHA</code>.</strong> All block-ending constructs (<code>IFF</code>, <code>UGGA</code>, <code>MAGIC</code>) close with <code>UGHA</code> on its own line.</li>
-<li><strong>Dynamically typed.</strong> Variables hold any value — numbers, strings, booleans, or <code>VOID</code>.</li>
+<li><strong>Strongly typed.</strong> Every variable and parameter carries an explicit type annotation using caveman-named Rust types (<code>ROCK</code>=i32, <code>WORDS</code>=String, <code>GRUNT</code>=bool, etc.).</li>
 <li><strong>Caveman keywords.</strong> Every reserved word sounds like it came from a prehistoric cave.</li>
 </ul>
 <hr />
@@ -1308,17 +1308,17 @@
 <p>A program is a sequence of statements, one per line. Blank lines are ignored. Comments begin with <code>OOF</code> and cover the rest of the line.</p>
 <div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>OOF This is a comment — ignored by the compiler
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>OOGA x BE 42          OOF declare a variable
-</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>SAY x                 OOF print it
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>OOGA x ROCK BE 42          OOF declare a ROCK (i32) variable
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>SAY x                      OOF print it
 </span></code></pre></div>
-<p>Functions may be defined anywhere in the file; <code>oogac</code> hoists them in the generated JavaScript so they are callable from anywhere in the same file.</p>
+<p>Functions may be defined anywhere in the file; <code>oogac</code> emits all function definitions before <code>fn main()</code> in the generated Rust, so they are callable from anywhere in the same file.</p>
 <hr />
 <h2 id="execution-model">Execution model<a class="headerlink" href="#execution-model" title="Permanent link">&para;</a></h2>
-<p><code>oogac</code> compiles <code>.ooga</code> → <code>.js</code> in a single pass. The generated JavaScript file is self-contained and runnable with <code>node</code>. The output includes:</p>
+<p><code>oogac</code> compiles <code>.ooga</code> → <code>.rs</code> in a single pass. The generated Rust file is then compiled with <code>rustc</code> (or <code>cargo</code> when using the <code>ooga</code> build tool) to produce a native binary. The generated Rust includes:</p>
 <ol>
-<li>A preamble with built-in function shims and the <code>_hear()</code> helper for stdin.</li>
-<li>All function definitions (hoisted to the top).</li>
-<li>Top-level statements in source order.</li>
+<li>A preamble with runtime helper functions (<code>__ooga_concat</code>, etc.).</li>
+<li>All function definitions (emitted before <code>fn main()</code>).</li>
+<li>A <code>fn main()</code> containing top-level statements in source order.</li>
 </ol>
 <hr />
 <h2 id="reserved-words">Reserved words<a class="headerlink" href="#reserved-words" title="Permanent link">&para;</a></h2>
@@ -1451,8 +1451,12 @@
 <td>Boolean <code>false</code></td>
 </tr>
 <tr>
-<td><code>VOID</code></td>
-<td>Null / nothing</td>
+<td><code>NOTHING</code></td>
+<td>Unit / nothing (return type)</td>
+</tr>
+<tr>
+<td>Type names</td>
+<td><code>ROCK</code>, <code>WORDS</code>, <code>GRUNT</code>, etc.</td>
 </tr>
 </tbody>
 </table>
@@ -1461,7 +1465,7 @@
 <h2 id="a-complete-example">A complete example<a class="headerlink" href="#a-complete-example" title="Permanent link">&para;</a></h2>
 <div class="language-text highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>OOF FizzBuzz — cave edition
 </span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
-</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>OOGA i BE 1
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>OOGA i ROCK BE 1
 </span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>UGGA WHILE i SMALLR IS 30
 </span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>    IFF i MOD 15 IS 0
 </span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>        SAY &quot;FizzBuzz&quot;

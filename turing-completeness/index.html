@@ -1293,7 +1293,7 @@
 <p>Ooga Booga is Turing complete. This page explains what that means, why it matters, and provides a formal argument for why Ooga Booga qualifies.</p>
 <hr />
 <h2 id="what-is-turing-completeness">What is Turing completeness?<a class="headerlink" href="#what-is-turing-completeness" title="Permanent link">&para;</a></h2>
-<p>A computational system is <strong>Turing complete</strong> if it can simulate any Turing machine — informally, if it can compute anything that is computable given enough time and memory. Every general-purpose programming language you have used (Python, C, JavaScript, etc.) is Turing complete.</p>
+<p>A computational system is <strong>Turing complete</strong> if it can simulate any Turing machine — informally, if it can compute anything that is computable given enough time and memory. Every general-purpose programming language you have used (Python, C, Rust, etc.) is Turing complete.</p>
 <p>The minimum ingredients for Turing completeness are:</p>
 <ol>
 <li><strong>Mutable state</strong> — the ability to read and write memory.</li>
@@ -1307,7 +1307,7 @@
 <div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>OOGA x BE 0
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>x GETS x PLUS 1   OOF mutable state
 </span></code></pre></div>
-<p>There is no limit on the number of variables a program may declare, and they can hold arbitrarily large integer values (bounded only by the host JavaScript engine, which uses arbitrary-precision arithmetic for very large BigInts — or standard 64-bit floats for practical use).</p>
+<p>There is no limit on the number of variables a program may declare, and numeric types can hold values up to the bounds of their Rust-equivalent type (e.g., <code>ROCK</code>=i32 up to ~2.1 billion; <code>BIGROCK</code>=i64 up to ~9.2 × 10¹⁸; <code>HUGEROCK</code>=i128 for astronomical values).</p>
 <h3 id="2-conditional-branching">2. Conditional branching<a class="headerlink" href="#2-conditional-branching" title="Permanent link">&para;</a></h3>
 <p><code>IFF</code> / <code>NOPE IFF</code> / <code>NOPE</code> provides full conditional branching:</p>
 <div class="language-text highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>IFF condition
@@ -1326,7 +1326,7 @@
 </span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>UGHA
 </span></code></pre></div>
 <p><strong>b) Recursion via <code>MAGIC</code></strong></p>
-<p>Functions may call themselves (or call other functions that call back). There is no depth limit imposed by the language (only the practical stack limit of the Node.js runtime):</p>
+<p>Functions may call themselves (or call other functions that call back). There is no depth limit imposed by the language (only the practical stack limit of the compiled Rust binary, which is typically 8 MB per thread):</p>
 <div class="language-text highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>MAGIC recurse(n)
 </span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>    IFF n IS 0
 </span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>        GIVEBACK 0
@@ -1345,9 +1345,9 @@
 </ul>
 <p>We can simulate this in Ooga Booga:</p>
 <ul>
-<li>Represent the tape as a sufficiently large array (via JavaScript interop) or as a pair of integer stacks encoded as large numbers.</li>
-<li>Represent the state as an integer variable.</li>
-<li>Represent the head position as an integer variable.</li>
+<li>Represent the tape as a pair of integer variables encoding stacks (or as a large <code>BIGROCK</code> with bit-shifting).</li>
+<li>Represent the state as a <code>ROCK</code> variable.</li>
+<li>Represent the head position as a <code>ROCK</code> variable.</li>
 <li>Use a <code>UGGA WHILE</code> loop for the machine's step function.</li>
 <li>Use nested <code>IFF</code> / <code>NOPE IFF</code> chains to implement the transition table.</li>
 </ul>
@@ -1365,9 +1365,9 @@
 <h2 id="limitations">Limitations<a class="headerlink" href="#limitations" title="Permanent link">&para;</a></h2>
 <p>Turing completeness is a theoretical property. Practical limits include:</p>
 <ul>
-<li><strong>Stack depth</strong>: deep recursion is limited by Node.js's call stack (~10,000–15,000 frames by default).</li>
+<li><strong>Stack depth</strong>: deep recursion is limited by the OS thread stack size (~8 MB by default in Rust-compiled binaries, giving thousands of frames).</li>
 <li><strong>Memory</strong>: variables are held in RAM.</li>
-<li><strong>Integer precision</strong>: JavaScript numbers are IEEE-754 doubles; very large integers lose precision unless <code>BigInt</code> is used explicitly.</li>
+<li><strong>Integer range</strong>: each type has a fixed range (e.g., <code>ROCK</code>=i32, <code>BIGROCK</code>=i64). For very large values, use <code>HUGEROCK</code> (i128) or <code>BIGPEBBLE</code> (u64).</li>
 </ul>
 <p>None of these are language-level restrictions; they are implementation-level constraints shared by all practical computing systems.</p>
 
