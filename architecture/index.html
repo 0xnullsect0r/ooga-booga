@@ -1079,10 +1079,21 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#pipeline-overview" class="md-nav__link">
+  <a href="#overview" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Pipeline overview
+        Overview
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pipeline" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pipeline
       
     </span>
   </a>
@@ -1100,6 +1111,17 @@
   
     <nav class="md-nav" aria-label="Module breakdown">
       <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#srclibrs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        src/lib.rs
+      
+    </span>
+  </a>
+  
+</li>
         
           <li class="md-nav__item">
   <a href="#srcerrorrs" class="md-nav__link">
@@ -1168,10 +1190,21 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#srcmainrs" class="md-nav__link">
+  <a href="#srcbinoogacrs" class="md-nav__link">
     <span class="md-ellipsis">
       
-        src/main.rs
+        src/bin/oogac.rs
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#srcbinoogars" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        src/bin/ooga.rs
       
     </span>
   </a>
@@ -1184,10 +1217,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#adding-a-new-language-feature" class="md-nav__link">
+  <a href="#project-layout" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Adding a new language feature
+        Project layout
       
     </span>
   </a>
@@ -1195,10 +1228,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#running-the-test-suite" class="md-nav__link">
+  <a href="#adding-a-new-language-feature" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Running the test suite
+        Adding a new language feature
       
     </span>
   </a>
@@ -1323,9 +1356,17 @@
 
 
 <h1 id="compiler-architecture">Compiler Architecture<a class="headerlink" href="#compiler-architecture" title="Permanent link">&para;</a></h1>
-<p>This page describes the internal design of <code>oogac</code>, the Ooga Booga compiler, for contributors and curious readers.</p>
+<p>This page describes the internal design of the Ooga Booga toolchain for contributors and curious readers.</p>
 <hr />
-<h2 id="pipeline-overview">Pipeline overview<a class="headerlink" href="#pipeline-overview" title="Permanent link">&para;</a></h2>
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p>Ooga Booga source files (<code>.ooga</code>) are <strong>transpiled to Rust</strong>, then compiled to a native binary by <code>cargo</code>. There are two user-facing binaries:</p>
+<ul>
+<li><strong><code>oogac</code></strong> — the low-level transpiler CLI (<code>oogac compile</code>, <code>oogac run</code>, <code>oogac check</code>)</li>
+<li><strong><code>ooga</code></strong> — the high-level build tool that mirrors <code>cargo</code> (<code>ooga new</code>, <code>ooga build</code>, <code>ooga run</code>, <code>ooga check</code>, <code>ooga clean</code>, <code>ooga test</code>)</li>
+</ul>
+<p>Both binaries share the same compiler library (<code>src/lib.rs</code>).</p>
+<hr />
+<h2 id="pipeline">Pipeline<a class="headerlink" href="#pipeline" title="Permanent link">&para;</a></h2>
 <div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>Source file (.ooga)
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>        │
 </span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>        ▼
@@ -1341,29 +1382,37 @@
 </span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>  └─────────────┘
 </span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>        │  Program (AST)
 </span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>        ▼
-</span><span id="__span-0-16"><a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>  ┌─────────────────┐
-</span><span id="__span-0-17"><a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>  │ Semantic Analyser│  src/semantic.rs
-</span><span id="__span-0-18"><a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>  │   analyse()      │
-</span><span id="__span-0-19"><a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>  └─────────────────┘
+</span><span id="__span-0-16"><a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>  ┌──────────────────┐
+</span><span id="__span-0-17"><a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>  │ Semantic Analyser │   src/semantic.rs
+</span><span id="__span-0-18"><a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>  │    analyse()      │
+</span><span id="__span-0-19"><a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>  └──────────────────┘
 </span><span id="__span-0-20"><a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>        │  Program (validated)
 </span><span id="__span-0-21"><a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a>        ▼
 </span><span id="__span-0-22"><a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a>  ┌─────────────┐
 </span><span id="__span-0-23"><a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a>  │  Code Gen    │   src/codegen.rs
 </span><span id="__span-0-24"><a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a>  │  generate()  │
 </span><span id="__span-0-25"><a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a>  └─────────────┘
-</span><span id="__span-0-26"><a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a>        │  String (JavaScript)
+</span><span id="__span-0-26"><a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a>        │  String (Rust source)
 </span><span id="__span-0-27"><a id="__codelineno-0-27" name="__codelineno-0-27" href="#__codelineno-0-27"></a>        ▼
-</span><span id="__span-0-28"><a id="__codelineno-0-28" name="__codelineno-0-28" href="#__codelineno-0-28"></a>  Output file (.js)
+</span><span id="__span-0-28"><a id="__codelineno-0-28" name="__codelineno-0-28" href="#__codelineno-0-28"></a>  .ooga-gen/src/main.rs
+</span><span id="__span-0-29"><a id="__codelineno-0-29" name="__codelineno-0-29" href="#__codelineno-0-29"></a>        │
+</span><span id="__span-0-30"><a id="__codelineno-0-30" name="__codelineno-0-30" href="#__codelineno-0-30"></a>        ▼
+</span><span id="__span-0-31"><a id="__codelineno-0-31" name="__codelineno-0-31" href="#__codelineno-0-31"></a>  cargo build / rustc
+</span><span id="__span-0-32"><a id="__codelineno-0-32" name="__codelineno-0-32" href="#__codelineno-0-32"></a>        │
+</span><span id="__span-0-33"><a id="__codelineno-0-33" name="__codelineno-0-33" href="#__codelineno-0-33"></a>        ▼
+</span><span id="__span-0-34"><a id="__codelineno-0-34" name="__codelineno-0-34" href="#__codelineno-0-34"></a>  Native binary
 </span></code></pre></div>
-<p>The CLI (<code>src/main.rs</code>) wires these stages together and handles file I/O.</p>
 <hr />
 <h2 id="module-breakdown">Module breakdown<a class="headerlink" href="#module-breakdown" title="Permanent link">&para;</a></h2>
+<h3 id="srclibrs"><code>src/lib.rs</code><a class="headerlink" href="#srclibrs" title="Permanent link">&para;</a></h3>
+<p>Re-exports all compiler modules as <code>pub mod</code>. Both binary crates (<code>oogac</code> and <code>ooga</code>) use this library.</p>
+<hr />
 <h3 id="srcerrorrs"><code>src/error.rs</code><a class="headerlink" href="#srcerrorrs" title="Permanent link">&para;</a></h3>
-<p>Defines the <code>OogaError</code> enum and the <code>Span</code> struct (line + column).</p>
+<p>Defines <code>OogaError</code> and <code>Span</code>.</p>
 <ul>
-<li><strong><code>Span</code></strong>: Source location, included with every token and most AST nodes.</li>
-<li><strong><code>OogaError</code></strong>: Four variants — <code>IoError</code>, <code>LexError</code>, <code>ParseError</code>, <code>SemanticError</code>. Each variant's <code>Display</code> implementation produces a caveman-flavored message.</li>
-<li><strong><code>OogaResult&lt;T&gt;</code></strong>: Type alias for <code>Result&lt;T, OogaError&gt;</code>.</li>
+<li><strong><code>Span</code></strong>: source location (line + column).</li>
+<li><strong><code>OogaError</code></strong>: four variants — <code>IoError</code>, <code>LexError</code>, <code>ParseError</code>, <code>SemanticError</code>. Each variant's <code>Display</code> implementation produces a caveman-flavored message.</li>
+<li><strong><code>OogaResult&lt;T&gt;</code></strong>: type alias for <code>Result&lt;T, OogaError&gt;</code>.</li>
 </ul>
 <hr />
 <h3 id="srcastrs"><code>src/ast.rs</code><a class="headerlink" href="#srcastrs" title="Permanent link">&para;</a></h3>
@@ -1371,109 +1420,161 @@
 <ul>
 <li><strong><code>Program</code></strong>: top-level container, holds <code>Vec&lt;Statement&gt;</code>.</li>
 <li><strong><code>Statement</code></strong>: enum with variants for every statement kind (<code>VarDecl</code>, <code>Assign</code>, <code>Say</code>, <code>Hear</code>, <code>If</code>, <code>While</code>, <code>Loop</code>, <code>Break</code>, <code>Continue</code>, <code>FuncDef</code>, <code>Return</code>, <code>ExprStmt</code>).</li>
-<li><strong><code>Expr</code></strong>: enum with variants for every expression kind (<code>Literal</code>, <code>Ident</code>, <code>BinOp</code>, <code>UnaryOp</code>, <code>FuncCall</code>).</li>
-<li><strong><code>Literal</code></strong>, <strong><code>BinOp</code></strong>, <strong><code>UnaryOp</code></strong>: leaf enums.</li>
+<li><strong><code>Expr</code></strong>: expression enum (<code>Literal</code>, <code>Ident</code>, <code>BinOp</code>, <code>UnaryOp</code>, <code>FuncCall</code>).</li>
+<li><strong><code>TypeAnnotation</code></strong>: enum of all 18 Ooga Booga types (<code>ROCK</code>, <code>BIGROCK</code>, <code>WORDS</code>, etc.) with methods <code>to_rust()</code>, <code>default_value()</code>, <code>is_words()</code>.</li>
+<li>All nodes carry a <code>Span</code> for accurate error reporting.</li>
 </ul>
-<p>All nodes carry a <code>Span</code> for error reporting.</p>
 <hr />
 <h3 id="srclexerrs"><code>src/lexer.rs</code><a class="headerlink" href="#srclexerrs" title="Permanent link">&para;</a></h3>
-<p>Converts raw source text into a flat list of tokens.</p>
+<p>Converts raw source text into a flat list of <code>Spanned&lt;Token&gt;</code> values.</p>
 <ul>
-<li><strong><code>Token</code></strong>: enum of all syntactic tokens (keywords, literals, punctuation, <code>Eof</code>).</li>
-<li><strong><code>Spanned</code></strong>: pairs a <code>Token</code> with its <code>Span</code>.</li>
-<li><strong><code>Lexer</code></strong>: byte-by-byte scanner. Key behaviours:</li>
-<li>Multiple consecutive newlines are collapsed into a single <code>Token::Newline</code>.</li>
-<li><code>OOF</code> (when followed by a non-identifier character) skips the rest of the line.</li>
-<li>String literals handle <code>\n</code>, <code>\t</code>, <code>\"</code>, <code>\\</code> escape sequences.</li>
-<li>Two-character compound operators (<code>BIGGR IS</code>, <code>SMALLR IS</code>) are recognised at the <strong>parser</strong> level, not the lexer.</li>
+<li>Recognises all keywords, type keywords, identifiers, integer/float/string/char/boolean literals, operators, and punctuation.</li>
+<li>Emits <code>Token::Newline</code> as a statement separator (blank lines are collapsed).</li>
+<li>Type tokens: <code>TEENYROCK</code>, <code>SMALLROCK</code>, <code>ROCK</code>, <code>BIGROCK</code>, … <code>WORDS</code>, <code>NOTHING</code>.</li>
+<li>New tokens vs. v1: <code>Token::Colon</code> (<code>:</code>), <code>Token::Arrow</code> (<code>-&gt;</code>).</li>
 </ul>
 <hr />
 <h3 id="srcparserrs"><code>src/parser.rs</code><a class="headerlink" href="#srcparserrs" title="Permanent link">&para;</a></h3>
-<p>Recursive descent parser. Consumes <code>Vec&lt;Spanned&gt;</code> and produces <code>Program</code>.</p>
-<p><strong>Statement parsing</strong>: <code>parse_statement()</code> dispatches on the first token of the current line to one of the dedicated statement parsers.</p>
-<p><strong>Expression parsing</strong>: uses standard precedence climbing via mutually-recursive functions:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>parse_expr → parse_or → parse_and → parse_not
-</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>          → parse_comparison → parse_additive
-</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>          → parse_multiplicative → parse_unary
-</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>          → parse_primary
-</span></code></pre></div>
-<p><code>BIGGR IS</code> / <code>SMALLR IS</code> are handled in <code>parse_comparison()</code> by peeking one token ahead after seeing <code>BIGGR</code> or <code>SMALLR</code>.</p>
-<p><strong>Block parsing</strong>: <code>parse_block()</code> reads statements until it sees <code>UGHA</code>, <code>NOPE</code>, or <code>Eof</code> — it does <strong>not</strong> consume the terminator.</p>
+<p>Recursive-descent parser. Produces an AST <code>Program</code> from a token stream.</p>
+<p>Key parsing rules:</p>
+<ul>
+<li><code>OOGA name: Type</code> / <code>OOGA name: Type BE expr</code></li>
+<li><code>MAGIC name(p1: Type, p2: Type) -&gt; ReturnType</code></li>
+<li><code>IFF expr</code> … <code>NOPE IFF expr</code> … <code>NOPE</code> … <code>UGHA</code></li>
+<li><code>UGGA WHILE expr</code> … <code>UGHA</code></li>
+<li><code>UGGA DO</code> … <code>UGHA</code></li>
+<li>Operator precedence: OR → AND → NOT → comparisons → PLUS/MINUS → TIMES/DIVVY/MOD → unary MINUS → primary</li>
+</ul>
 <hr />
 <h3 id="srcsemanticrs"><code>src/semantic.rs</code><a class="headerlink" href="#srcsemanticrs" title="Permanent link">&para;</a></h3>
-<p>Single-pass semantic analyser that collects all errors before returning.</p>
+<p>Single-pass semantic analysis. Checks:</p>
 <ul>
-<li>Uses a <strong><code>Context</code></strong> struct containing:</li>
-<li><code>declared</code>: set of declared variable names in the current scope.</li>
-<li><code>in_function</code>: tracks whether we are inside a <code>MAGIC</code> body.</li>
-<li><code>in_loop</code>: tracks whether we are inside a <code>UGGA</code> body.</li>
-<li>
-<p><code>functions</code>: set of known function names (populated in a first pass over the program).</p>
-</li>
-<li>
-<p><strong>First pass</strong>: scans for all top-level <code>FuncDef</code> statements and adds their names to <code>ctx.functions</code>, enabling mutual recursion and forward calls.</p>
-</li>
-<li><strong>Second pass</strong>: walks every statement and expression recursively, accumulating <code>OogaError::SemanticError</code> entries.</li>
+<li>Every identifier referenced must be declared (<code>OOGA</code>) or be a parameter.</li>
+<li>Every assignment target must be declared.</li>
+<li><code>GIVEBACK</code> must appear inside a <code>MAGIC</code> body.</li>
+<li><code>STOP</code> / <code>SKIP</code> must appear inside a loop body.</li>
+<li>Function calls must reference a declared or built-in function.</li>
+<li>Duplicate parameter names in <code>MAGIC</code> definitions.</li>
 </ul>
-<p>Built-in function names (<code>NUMBR</code>, <code>WORDY</code>, etc.) are always considered declared.</p>
+<p>Errors are collected and returned as a <code>Vec&lt;OogaError&gt;</code> so all problems are reported at once.</p>
 <hr />
 <h3 id="srccodegenrs"><code>src/codegen.rs</code><a class="headerlink" href="#srccodegenrs" title="Permanent link">&para;</a></h3>
-<p>Traverses the validated AST and produces a JavaScript string.</p>
+<p>Emits valid Rust source from a validated AST.</p>
+<p>Key behaviours:</p>
 <ul>
-<li>Emits a <strong>preamble</strong> containing <code>"use strict"</code>, built-in function definitions, and the <code>_hear()</code> helper.</li>
-<li><strong>Function hoisting</strong>: iterates statements twice — first emitting <code>FuncDef</code> nodes, then all other statements.</li>
-<li><strong>Indentation</strong>: maintains an <code>indent: usize</code> counter; <code>indent()</code> outputs <code>2 * indent</code> spaces.</li>
-<li><strong>Expression emission</strong>: wraps every <code>BinOp</code> in parentheses to guarantee correct precedence in the output regardless of JavaScript's own rules.</li>
+<li>Injects a preamble with <code>#![allow(...)]</code> and helper functions (<code>WORDY</code>, <code>NUMBR</code>, <code>NUMBR_BIG</code>, <code>NUMBR_DRIP</code>, <code>BIGNESS</code>, <code>FLOORY</code>, <code>ROUNDY</code>, <code>ROOTY</code>, <code>__ooga_concat</code>).</li>
+<li>Emits <code>fn name(p: Type) -&gt; ReturnType { ... }</code> for each <code>MAGIC</code> definition.</li>
+<li>Wraps all non-function top-level statements in <code>fn main() { ... }</code>.</li>
+<li><code>SAY expr</code> → <code>println!("{}", expr);</code></li>
+<li><code>HEAR name</code> → <code>std::io::stdin().read_line(...)</code> block.</li>
+<li><code>OOGA x: Type BE expr</code> → <code>let mut x: RustType = expr;</code></li>
+<li><code>PLUS</code> on <code>WORDS</code> values → <code>__ooga_concat(a, b)</code> to avoid Rust's asymmetric string <code>+</code>.</li>
+<li>Tracks a <code>type_env: HashMap&lt;String, TypeAnnotation&gt;</code> to detect string context for PLUS.</li>
 </ul>
 <hr />
-<h3 id="srcmainrs"><code>src/main.rs</code><a class="headerlink" href="#srcmainrs" title="Permanent link">&para;</a></h3>
-<p>CLI entry point built with <a href="https://crates.io/crates/clap">clap</a>.</p>
-<p>Three subcommands:</p>
+<h3 id="srcbinoogacrs"><code>src/bin/oogac.rs</code><a class="headerlink" href="#srcbinoogacrs" title="Permanent link">&para;</a></h3>
+<p>The low-level transpiler CLI. Subcommands:</p>
 <table>
 <thead>
 <tr>
-<th>Subcommand</th>
+<th>Command</th>
 <th>Action</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><code>compile</code></td>
-<td>Lex → Parse → Analyse → Codegen → write <code>.js</code> file</td>
+<td><code>oogac compile &lt;file&gt;</code></td>
+<td>Transpile <code>.ooga</code> → <code>.rs</code> file</td>
 </tr>
 <tr>
-<td><code>run</code></td>
-<td>Same as <code>compile</code>, then execute with <code>node</code></td>
+<td><code>oogac run &lt;file&gt;</code></td>
+<td>Transpile → <code>rustc</code> → run binary (temp files)</td>
 </tr>
 <tr>
-<td><code>check</code></td>
-<td>Lex → Parse → Analyse only, no output</td>
+<td><code>oogac check &lt;file&gt;</code></td>
+<td>Lex + parse + semantic check, no output</td>
 </tr>
 </tbody>
 </table>
 <hr />
-<h2 id="adding-a-new-language-feature">Adding a new language feature<a class="headerlink" href="#adding-a-new-language-feature" title="Permanent link">&para;</a></h2>
-<p>To add a new statement or expression type:</p>
-<ol>
-<li><strong><code>ast.rs</code></strong>: Add a new variant to <code>Statement</code> or <code>Expr</code>.</li>
-<li><strong><code>lexer.rs</code></strong>: Add any new keywords to <code>Token</code> and <code>keyword_or_ident()</code>.</li>
-<li><strong><code>parser.rs</code></strong>: Add a parsing function and dispatch from <code>parse_statement()</code> or <code>parse_primary()</code>.</li>
-<li><strong><code>semantic.rs</code></strong>: Add checks in <code>check_statement()</code> or <code>check_expr()</code>.</li>
-<li><strong><code>codegen.rs</code></strong>: Add code emission in <code>emit_statement()</code> or <code>emit_expr()</code>.</li>
-<li><strong>Tests</strong>: Add unit tests in each module's <code>#[cfg(test)]</code> block.</li>
-<li><strong>Docs</strong>: Update the relevant language reference page(s).</li>
-</ol>
+<h3 id="srcbinoogars"><code>src/bin/ooga.rs</code><a class="headerlink" href="#srcbinoogars" title="Permanent link">&para;</a></h3>
+<p>The high-level build tool. Mirrors <code>cargo</code> subcommands:</p>
+<table>
+<thead>
+<tr>
+<th>Command</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ooga new &lt;name&gt;</code></td>
+<td>Scaffold project dir with <code>Ooga.toml</code> + <code>src/main.ooga</code></td>
+</tr>
+<tr>
+<td><code>ooga build</code></td>
+<td>Transpile → <code>.ooga-gen/</code> → <code>cargo build</code></td>
+</tr>
+<tr>
+<td><code>ooga build --release</code></td>
+<td>Release build</td>
+</tr>
+<tr>
+<td><code>ooga run</code></td>
+<td>Build + execute</td>
+</tr>
+<tr>
+<td><code>ooga check</code></td>
+<td>Transpile + semantic check (no binary)</td>
+</tr>
+<tr>
+<td><code>ooga clean</code></td>
+<td>Remove <code>.ooga-gen/</code> and <code>target/</code></td>
+</tr>
+<tr>
+<td><code>ooga test</code></td>
+<td>Transpile + <code>cargo test</code></td>
+</tr>
+</tbody>
+</table>
+<p>The <code>ooga</code> tool walks up the directory tree to find <code>Ooga.toml</code>, writes generated Rust to <code>.ooga-gen/src/main.rs</code>, invokes <code>cargo build</code>, and copies the binary to <code>target/debug/</code> or <code>target/release/</code>.</p>
 <hr />
-<h2 id="running-the-test-suite">Running the test suite<a class="headerlink" href="#running-the-test-suite" title="Permanent link">&para;</a></h2>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>cargo<span class="w"> </span><span class="nb">test</span>
+<h2 id="project-layout">Project layout<a class="headerlink" href="#project-layout" title="Permanent link">&para;</a></h2>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>ooga-booga/
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>├── Cargo.toml              # lib + two [[bin]] entries
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>├── src/
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>│   ├── lib.rs              # re-exports all modules
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>│   ├── error.rs
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>│   ├── lexer.rs
+</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>│   ├── ast.rs
+</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>│   ├── parser.rs
+</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>│   ├── semantic.rs
+</span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>│   ├── codegen.rs
+</span><span id="__span-1-11"><a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>│   └── bin/
+</span><span id="__span-1-12"><a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>│       ├── oogac.rs        # transpiler CLI
+</span><span id="__span-1-13"><a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>│       └── ooga.rs         # build tool CLI
+</span><span id="__span-1-14"><a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>├── tests/
+</span><span id="__span-1-15"><a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a>│   └── integration_tests.rs
+</span><span id="__span-1-16"><a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a>├── examples/
+</span><span id="__span-1-17"><a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a>│   ├── hello_world.ooga
+</span><span id="__span-1-18"><a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a>│   ├── fibonacci.ooga
+</span><span id="__span-1-19"><a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a>│   ├── factorial.ooga
+</span><span id="__span-1-20"><a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a>│   └── loop_demo.ooga
+</span><span id="__span-1-21"><a id="__codelineno-1-21" name="__codelineno-1-21" href="#__codelineno-1-21"></a>├── install-ooga.sh
+</span><span id="__span-1-22"><a id="__codelineno-1-22" name="__codelineno-1-22" href="#__codelineno-1-22"></a>├── mkdocs.yml
+</span><span id="__span-1-23"><a id="__codelineno-1-23" name="__codelineno-1-23" href="#__codelineno-1-23"></a>└── docs/
 </span></code></pre></div>
-<p>Tests are co-located with each module in <code>#[cfg(test)]</code> blocks. The test suite covers:</p>
-<ul>
-<li><strong>Lexer</strong>: keyword recognition, string escapes, numeric literals, comments.</li>
-<li><strong>Parser</strong>: all statement forms, expression precedence, compound operators.</li>
-<li><strong>Semantic</strong>: undefined variables, out-of-context <code>GIVEBACK</code>/<code>STOP</code>/<code>SKIP</code>, built-ins.</li>
-<li><strong>Codegen</strong>: generated JS contains expected patterns, function hoisting, correct operator output.</li>
-</ul>
+<hr />
+<h2 id="adding-a-new-language-feature">Adding a new language feature<a class="headerlink" href="#adding-a-new-language-feature" title="Permanent link">&para;</a></h2>
+<ol>
+<li>Add token(s) to <code>Token</code> enum in <code>src/lexer.rs</code> and update <code>keyword_or_ident()</code>.</li>
+<li>Add AST node(s) to <code>Statement</code> or <code>Expr</code> in <code>src/ast.rs</code>.</li>
+<li>Add parsing logic in <code>src/parser.rs</code>.</li>
+<li>Add semantic checks in <code>src/semantic.rs</code>.</li>
+<li>Add Rust code emission in <code>src/codegen.rs</code>.</li>
+<li>Add unit tests in each module and integration tests in <code>tests/</code>.</li>
+<li>Update the relevant documentation pages.</li>
+</ol>
 
 
 

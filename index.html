@@ -1241,19 +1241,19 @@
 <blockquote>
 <p><strong>"Me make code. Code do thing. UGH!"</strong></p>
 </blockquote>
-<p>Ooga Booga is a caveman-themed esoteric programming language that transpiles to JavaScript. It is Turing complete, surprisingly expressive, and 100% caveman.</p>
+<p>Ooga Booga is a caveman-themed esoteric programming language that <strong>transpiles to Rust</strong> and compiles to a native binary. It is strongly typed, Turing complete, surprisingly expressive, and 100% caveman.</p>
 <hr />
 <h2 id="taste-the-language">Taste the language<a class="headerlink" href="#taste-the-language" title="Permanent link">&para;</a></h2>
 <div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>OOF Compute factorial — recursion in cave style!
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>MAGIC factorial(n)
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>MAGIC factorial(n: BIGROCK) -&gt; BIGROCK
 </span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    IFF n SMALLR IS 1
 </span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>        GIVEBACK 1
 </span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    UGHA
 </span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    GIVEBACK n TIMES factorial(n MINUS 1)
 </span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>UGHA
 </span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>
-</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>OOGA i BE 1
+</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>OOGA i: ROCK BE 1
 </span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>UGGA WHILE i SMALLR IS 10
 </span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>    SAY WORDY(i) PLUS &quot;! = &quot; PLUS WORDY(factorial(i))
 </span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>    i GETS i PLUS 1
@@ -1275,16 +1275,18 @@
 <h2 id="why-ooga-booga">Why Ooga Booga?<a class="headerlink" href="#why-ooga-booga" title="Permanent link">&para;</a></h2>
 <ul>
 <li><strong>Cave-themed keywords</strong> — <code>SAY</code>, <code>MAGIC</code>, <code>UGGA WHILE</code>, <code>GIVEBACK</code>, <code>IFF</code>, <code>NOPE</code></li>
+<li><strong>Strongly typed</strong> — 18 Rust-mapped types (<code>ROCK</code> = i32, <code>WORDS</code> = String, <code>GRUNT</code> = bool, …)</li>
+<li><strong>Transpiles to Rust</strong> — native binaries, zero runtime dependencies</li>
+<li><strong><code>ooga</code> build tool</strong> — works like <code>cargo</code>: <code>ooga new</code>, <code>ooga build</code>, <code>ooga run</code></li>
 <li><strong>Turing complete</strong> — loops, recursion, mutable state, conditionals</li>
-<li><strong>Transpiles to JavaScript</strong> — output runs with Node.js, zero extra runtime</li>
-<li><strong>Compiler in Rust</strong> — fast, correct, friendly error messages</li>
+<li><strong>Compiler in Rust</strong> — fast, correct, friendly caveman error messages</li>
 <li><strong>Real documentation</strong> — this site</li>
 </ul>
 <hr />
 <h2 id="quick-links">Quick links<a class="headerlink" href="#quick-links" title="Permanent link">&para;</a></h2>
 <div class="grid cards">
 <ul>
-<li>:material-download: <strong><a href="getting-started/installation/">Installation</a></strong> — build the compiler</li>
+<li>:material-download: <strong><a href="getting-started/installation/">Installation</a></strong> — install the toolchain</li>
 <li>:material-rocket-launch: <strong><a href="getting-started/quick-start/">Quick Start</a></strong> — write your first program</li>
 <li>:material-book-open: <strong><a href="language/overview/">Language Reference</a></strong> — full syntax guide</li>
 <li>:material-code-braces: <strong><a href="examples/">Examples</a></strong> — annotated programs</li>
@@ -1292,8 +1294,8 @@
 </div>
 <hr />
 <h2 id="status">Status<a class="headerlink" href="#status" title="Permanent link">&para;</a></h2>
-<p>Ooga Booga is a complete, working language implementation. The compiler (<code>oogac</code>) handles the full pipeline: lexing, parsing, semantic analysis, and JavaScript code generation.</p>
-<p>All <a href="examples/">example programs</a> compile and run correctly. 41 automated tests cover the lexer, parser, semantic analyser, and code generator.</p>
+<p>Ooga Booga is a complete, working language implementation. The compiler handles the full pipeline: lexing, parsing, semantic analysis, and Rust code generation. Programs are compiled to native binaries via <code>cargo</code>.</p>
+<p>All <a href="examples/">example programs</a> compile and run correctly. 75+ automated tests cover the lexer, parser, semantic analyser, code generator, and end-to-end pipeline.</p>
 
 
 

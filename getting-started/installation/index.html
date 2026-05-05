@@ -618,38 +618,27 @@
   
 </li>
         
-          <li class="md-nav__item">
-  <a href="#nodejs" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Node.js
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#optional-readline-sync-for-hear" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Optional: readline-sync (for HEAR)
-      
-    </span>
-  </a>
-  
-</li>
-        
       </ul>
     </nav>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#building-the-compiler" class="md-nav__link">
+  <a href="#option-1-install-script-recommended" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Building the compiler
+        Option 1 — Install script (recommended)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#option-2-manual-build" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Option 2 — Manual build
       
     </span>
   </a>
@@ -661,6 +650,17 @@
     <span class="md-ellipsis">
       
         Verifying the installation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#quick-smoke-test" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Quick smoke test
       
     </span>
   </a>
@@ -1322,73 +1322,81 @@
 
 
 <h1 id="installation">Installation<a class="headerlink" href="#installation" title="Permanent link">&para;</a></h1>
-<p>This page covers everything you need to build <code>oogac</code> — the Ooga Booga compiler — and run <code>.ooga</code> programs.</p>
+<p>This page covers everything you need to install the Ooga Booga toolchain and run <code>.ooga</code> programs.</p>
 <hr />
 <h2 id="prerequisites">Prerequisites<a class="headerlink" href="#prerequisites" title="Permanent link">&para;</a></h2>
 <h3 id="rust-toolchain">Rust toolchain<a class="headerlink" href="#rust-toolchain" title="Permanent link">&para;</a></h3>
-<p>Ooga Booga's compiler is written in Rust. Install the latest stable Rust via <a href="https://rustup.rs/">rustup</a>:</p>
+<p>Ooga Booga compiles <code>.ooga</code> programs to Rust, then uses <code>cargo</code> / <code>rustc</code> to produce a native binary. You need the Rust toolchain installed.</p>
+<p>Install via <a href="https://rustup.rs/">rustup</a>:</p>
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>curl<span class="w"> </span>--proto<span class="w"> </span><span class="s1">&#39;=https&#39;</span><span class="w"> </span>--tlsv1.2<span class="w"> </span>-sSf<span class="w"> </span>https://sh.rustup.rs<span class="w"> </span><span class="p">|</span><span class="w"> </span>sh
 </span></code></pre></div>
 <p>After installation, verify:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>rustc<span class="w"> </span>--version<span class="w">   </span><span class="c1"># should print 1.70 or later</span>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>rustc<span class="w"> </span>--version<span class="w">   </span><span class="c1"># 1.70 or later</span>
 </span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>cargo<span class="w"> </span>--version
 </span></code></pre></div>
-<h3 id="nodejs">Node.js<a class="headerlink" href="#nodejs" title="Permanent link">&para;</a></h3>
-<p>The compiler transpiles <code>.ooga</code> files to JavaScript. You need <a href="https://nodejs.org/">Node.js</a> to <em>run</em> the generated output.</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>node<span class="w"> </span>--version<span class="w">   </span><span class="c1"># should print v18 or later</span>
+<p>That is the only prerequisite. No Node.js, no npm, no extra runtimes.</p>
+<hr />
+<h2 id="option-1-install-script-recommended">Option 1 — Install script (recommended)<a class="headerlink" href="#option-1-install-script-recommended" title="Permanent link">&para;</a></h2>
+<p>Clone the repository and run the install script:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/0xnullsect0r/ooga-booga.git
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="nb">cd</span><span class="w"> </span>ooga-booga
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>./install-ooga.sh
 </span></code></pre></div>
-<p>Node.js is <strong>not</strong> required to compile — only to execute the output.</p>
-<h3 id="optional-readline-sync-for-hear">Optional: readline-sync (for HEAR)<a class="headerlink" href="#optional-readline-sync-for-hear" title="Permanent link">&para;</a></h3>
-<p>If your program uses <code>HEAR</code> (reading from stdin), the generated JavaScript requires the <code>readline-sync</code> package:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>npm<span class="w"> </span>install<span class="w"> </span>readline-sync
+<p>This builds <code>ooga</code> and <code>oogac</code> in release mode and installs them to <code>/usr/local/bin/</code>. If you don't have write access there, use the <code>--user</code> flag:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>./install-ooga.sh<span class="w"> </span>--user<span class="w">      </span><span class="c1"># installs to ~/.local/bin/</span>
+</span></code></pre></div>
+<p>Or specify a custom prefix:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>./install-ooga.sh<span class="w"> </span>--prefix<span class="w"> </span>/opt/cave-tools
+</span></code></pre></div>
+<p>After a <code>--user</code> install, add <code>~/.local/bin</code> to your PATH if it isn't already:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="nb">export</span><span class="w"> </span><span class="nv">PATH</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$HOME</span><span class="s2">/.local/bin:</span><span class="nv">$PATH</span><span class="s2">&quot;</span><span class="w">   </span><span class="c1"># add to ~/.bashrc or ~/.zshrc</span>
 </span></code></pre></div>
 <hr />
-<h2 id="building-the-compiler">Building the compiler<a class="headerlink" href="#building-the-compiler" title="Permanent link">&para;</a></h2>
-<p>Clone the repository and compile with Cargo:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/0xnullsect0r/ooga-booga.git
-</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="nb">cd</span><span class="w"> </span>ooga-booga
-</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>cargo<span class="w"> </span>build<span class="w"> </span>--release
+<h2 id="option-2-manual-build">Option 2 — Manual build<a class="headerlink" href="#option-2-manual-build" title="Permanent link">&para;</a></h2>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/0xnullsect0r/ooga-booga.git
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="nb">cd</span><span class="w"> </span>ooga-booga
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>cargo<span class="w"> </span>build<span class="w"> </span>--release
 </span></code></pre></div>
-<p>The compiled binary will be at:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>target/release/oogac
+<p>The binaries are at:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>target/release/ooga     # build tool (like cargo)
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>target/release/oogac    # low-level transpiler
 </span></code></pre></div>
-<p>Add it to your <code>PATH</code> for convenient use:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="c1"># Linux / macOS</span>
-</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="nb">export</span><span class="w"> </span><span class="nv">PATH</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$PWD</span><span class="s2">/target/release:</span><span class="nv">$PATH</span><span class="s2">&quot;</span>
-</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>
-</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="c1"># Or copy to a system directory</span>
-</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>sudo<span class="w"> </span>cp<span class="w"> </span>target/release/oogac<span class="w"> </span>/usr/local/bin/
+<p>Add them to your PATH:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="nb">export</span><span class="w"> </span><span class="nv">PATH</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$PWD</span><span class="s2">/target/release:</span><span class="nv">$PATH</span><span class="s2">&quot;</span>
 </span></code></pre></div>
 <hr />
 <h2 id="verifying-the-installation">Verifying the installation<a class="headerlink" href="#verifying-the-installation" title="Permanent link">&para;</a></h2>
-<p>Check that the compiler works:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>oogac<span class="w"> </span>--help
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>ooga<span class="w"> </span>--help
 </span></code></pre></div>
 <p>Expected output:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>UGH! OOGAC — THE OOGA BOOGA CAVE COMPILER
-</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>
-</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>Usage: oogac &lt;COMMAND&gt;
-</span><span id="__span-8-4"><a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>
-</span><span id="__span-8-5"><a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>Commands:
-</span><span id="__span-8-6"><a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a>  compile  Transpile a .ooga source file to JavaScript
-</span><span id="__span-8-7"><a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a>  run      Transpile and immediately run a .ooga file with node
-</span><span id="__span-8-8"><a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a>  check    Check a .ooga file for errors without emitting output
-</span><span id="__span-8-9"><a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a>  help     Print this message or the help of the given subcommand(s)
+<div class="language-text highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>UGH! OOGA — CAVE BUILD TOOL FOR OOGA BOOGA PROGRAMS
+</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>
+</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>Usage: ooga &lt;COMMAND&gt;
+</span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>
+</span><span id="__span-10-5"><a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>Commands:
+</span><span id="__span-10-6"><a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a>  new    Create a new Ooga Booga project
+</span><span id="__span-10-7"><a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a>  build  Build the project (transpile + compile)
+</span><span id="__span-10-8"><a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a>  run    Build and run the project
+</span><span id="__span-10-9"><a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a>  check  Check the project for errors without building
+</span><span id="__span-10-10"><a id="__codelineno-10-10" name="__codelineno-10-10" href="#__codelineno-10-10"></a>  clean  Remove build artifacts
+</span><span id="__span-10-11"><a id="__codelineno-10-11" name="__codelineno-10-11" href="#__codelineno-10-11"></a>  test   Run tests
+</span><span id="__span-10-12"><a id="__codelineno-10-12" name="__codelineno-10-12" href="#__codelineno-10-12"></a>  help   Print this message or the help of the given subcommand(s)
 </span></code></pre></div>
-<p>Run one of the included examples:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>oogac<span class="w"> </span>run<span class="w"> </span>examples/hello_world.ooga
+<hr />
+<h2 id="quick-smoke-test">Quick smoke test<a class="headerlink" href="#quick-smoke-test" title="Permanent link">&para;</a></h2>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>ooga<span class="w"> </span>new<span class="w"> </span>hello-cave
+</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="nb">cd</span><span class="w"> </span>hello-cave
+</span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>ooga<span class="w"> </span>run
 </span></code></pre></div>
 <p>Expected output:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>Hello, World! UGH!
-</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>Me am:
-</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>Thog
-</span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>Greetings from cave creature: Thog
+<div class="language-text highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>Ooga Booga! Cave greet world!
 </span></code></pre></div>
 <hr />
 <h2 id="running-tests">Running tests<a class="headerlink" href="#running-tests" title="Permanent link">&para;</a></h2>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>cargo<span class="w"> </span><span class="nb">test</span>
+<p>From the repository root:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>cargo<span class="w"> </span><span class="nb">test</span>
 </span></code></pre></div>
-<p>All 41 unit and integration tests should pass.</p>
+<p>All unit and integration tests should pass. Integration tests compile and run example programs with <code>rustc</code>.</p>
 
 
 
