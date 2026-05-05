@@ -1,29 +1,60 @@
 /* Ooga Booga — custom theme extras */
 
-/* Caveman-earthy accent on inline code */
-code {
-  background-color: rgba(139, 90, 43, 0.12) !important;
-  border-radius: 3px;
-  padding: 1px 4px;
-}
-
-/* Slightly warmer heading colour in light mode */
-[data-md-color-scheme="default"] h1,
-[data-md-color-scheme="default"] h2 {
-  color: #5d3a1a;
-}
-
-/* Cave-wall texture hint on admonition notes */
-.md-typeset .admonition.note > .admonition-title::before {
-  content: "🪨 ";
-}
-
-/* Make code blocks slightly warmer */
+/* ── Code blocks ─────────────────────────────────────────────────────────── */
+/* Warm earth border on all code blocks */
 .highlight pre {
   border-left: 4px solid #bf6c2e;
 }
 
-/* Wider content area on large screens */
+/* Inline code */
+[data-md-color-scheme="slate"] code {
+  background-color: rgba(191, 108, 46, 0.18) !important;
+  border-radius: 3px;
+  padding: 1px 5px;
+}
+[data-md-color-scheme="default"] code {
+  background-color: rgba(139, 90, 43, 0.12) !important;
+  border-radius: 3px;
+  padding: 1px 5px;
+}
+
+/* ── Headings ────────────────────────────────────────────────────────────── */
+[data-md-color-scheme="default"] h1,
+[data-md-color-scheme="default"] h2 {
+  color: #5d3a1a;
+}
+[data-md-color-scheme="slate"] h1,
+[data-md-color-scheme="slate"] h2 {
+  color: #e8a06a;
+}
+
+/* ── Admonitions ─────────────────────────────────────────────────────────── */
+.md-typeset .admonition.note > .admonition-title::before {
+  content: "🪨 ";
+}
+
+/* ── Dark mode surface tweaks ────────────────────────────────────────────── */
+[data-md-color-scheme="slate"] {
+  --md-default-bg-color: #1a1210;
+  --md-default-fg-color: #e8ddd5;
+  --md-code-bg-color: #2a1f1a;
+  --md-code-fg-color: #f0c090;
+}
+
+/* ── Tables ──────────────────────────────────────────────────────────────── */
+[data-md-color-scheme="slate"] .md-typeset table:not([class]) th {
+  background-color: #3d2510;
+}
+[data-md-color-scheme="slate"] .md-typeset table:not([class]) tr:nth-child(even) {
+  background-color: #241a15;
+}
+
+/* ── Nav sidebar ─────────────────────────────────────────────────────────── */
+[data-md-color-scheme="slate"] .md-nav__link--active {
+  color: #e8a06a !important;
+}
+
+/* ── Content width ───────────────────────────────────────────────────────── */
 @media screen and (min-width: 76.25em) {
   .md-content {
     max-width: 860px;
