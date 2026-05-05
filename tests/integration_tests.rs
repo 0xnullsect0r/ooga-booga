@@ -1,10 +1,10 @@
+use std::process::Command;
 /// Integration tests for the Ooga Booga compiler pipeline.
 ///
 /// These tests drive the full lex → parse → semantic → codegen pipeline
 /// and verify that generated JavaScript contains expected constructs or
 /// that invalid programs are correctly rejected.
 use std::sync::atomic::{AtomicU64, Ordering};
-use std::process::Command;
 
 static COUNTER: AtomicU64 = AtomicU64::new(0);
 
@@ -178,7 +178,7 @@ fn compile_while_loop() {
 #[test]
 fn e2e_while_loop_count() {
     let src =
-        "OOGA i BE 0\nOOGA s BE 0\nUGGA WHILE i SMALLR IS 5\ns GETS s PLUS i\ni GETS i PLUS 1\nUGHA\nSAY s\n";
+        "OOGA i BE 0\nOOGA s BE 0\nUGGA WHILE i SMALLR 5\ns GETS s PLUS i\ni GETS i PLUS 1\nUGHA\nSAY s\n";
     let js = compile(src);
     let output = run_js(&js);
     // sum 0+1+2+3+4 = 10
@@ -227,7 +227,7 @@ SAY fact(5)
 fn e2e_recursive_fibonacci() {
     let src = "\
 MAGIC fib(n)
-IFF n SMALLR IS 2
+IFF n SMALLR 2
 GIVEBACK n
 UGHA
 GIVEBACK fib(n MINUS 1) PLUS fib(n MINUS 2)
@@ -300,8 +300,8 @@ fn e2e_example_hello_world() {
 
 #[test]
 fn e2e_example_factorial() {
-    let src =
-        std::fs::read_to_string("examples/factorial.ooga").expect("examples/factorial.ooga missing");
+    let src = std::fs::read_to_string("examples/factorial.ooga")
+        .expect("examples/factorial.ooga missing");
     let js = compile(&src);
     let output = run_js(&js);
     // factorial.ooga prints factorials; 5! = 120 should appear
@@ -310,8 +310,8 @@ fn e2e_example_factorial() {
 
 #[test]
 fn e2e_example_fibonacci() {
-    let src =
-        std::fs::read_to_string("examples/fibonacci.ooga").expect("examples/fibonacci.ooga missing");
+    let src = std::fs::read_to_string("examples/fibonacci.ooga")
+        .expect("examples/fibonacci.ooga missing");
     let js = compile(&src);
     let output = run_js(&js);
     // fibonacci.ooga prints fib sequence; 55 = fib(10)
@@ -320,8 +320,8 @@ fn e2e_example_fibonacci() {
 
 #[test]
 fn e2e_example_loop_demo() {
-    let src =
-        std::fs::read_to_string("examples/loop_demo.ooga").expect("examples/loop_demo.ooga missing");
+    let src = std::fs::read_to_string("examples/loop_demo.ooga")
+        .expect("examples/loop_demo.ooga missing");
     let js = compile(&src);
     let output = run_js(&js);
     // loop_demo sums 1..100 = 5050
