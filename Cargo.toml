@@ -1,0 +1,28 @@
+[package]
+name = "oogac"
+version = "0.1.0"
+edition = "2021"
+authors = ["Ooga Booga Contributors"]
+description = "The Ooga Booga esoteric programming language compiler"
+license = "GPL-3.0"
+repository = "https://github.com/0xnullsect0r/ooga-booga"
+readme = "README.md"
+keywords = ["esolang", "compiler", "transpiler", "caveman"]
+categories = ["command-line-utilities", "development-tools"]
+
+[[bin]]
+name = "oogac"
+path = "src/main.rs"
+
+[dependencies]
+clap = { version = "4", features = ["derive"] }
+thiserror = "2"
+
+[dev-dependencies]
+pretty_assertions = "1"
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+strip = true
